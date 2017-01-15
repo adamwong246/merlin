@@ -1,18 +1,12 @@
 import React from 'react';
 import AccountTransactions from './AccountTransactions.js'
 
-// const Tag = ({ name, tags }) => {
-//  return (<div>
-//   <span>{name}</span>
-//   <Transactions transactions={transactions} />
-//  </div>);
-// };
-
 const Tag = ({ tag, transactions }) => {
- return (<div>
-  <span>{JSON.stringify(tag)}</span>
-  <AccountTransactions transactions={transactions} />
- </div>);
+ return (<tr>
+  <td>{tag.name}, ({tag.pattern}), #{tag.id} </td>
+  <td><AccountTransactions transactions={transactions} /> </td>
+  <td> {transactions.reduce((memo, transaction) => Number(transaction.TRNAMT) + memo, 0)} </td>
+ </tr>);
 };
 
 export default Tag;

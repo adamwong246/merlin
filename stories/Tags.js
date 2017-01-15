@@ -9,18 +9,17 @@ const Tags = ({ ofcData, tagsData }) => {
    return (<Tag tag={tag} transactions={transactions} />)
  });
 
+ const untaggedTransactions = transList.filter((transaction) => {
+   return tagsData.filter((tag) => new RegExp(tag.pattern).test(transaction.NAME)).length == 0;
+ });
+
  return (
-  <div>
-  <ul>
+  <table>
     {groupedTransactions}
-  </ul>
-  </div>
+    <h2> untaggedTransactions </h2>
+    <Tag tag={{"name":"?"}} transactions={untaggedTransactions} />
+  </table>
  )
 };
-
-// AccountTransactions.propTypes = {
-//   children: React.PropTypes.string.isRequired,
-//   onClick: React.PropTypes.func,
-// };
 
 export default Tags;

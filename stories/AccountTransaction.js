@@ -5,10 +5,10 @@ const AccountTransaction = ({ transaction }) => {
   <tr>
     <td>{transaction.TRNTYPE}</td>
     <td>{transaction.DTPOSTED}</td>
-    <td>{transaction.TRNAMT}</td>
     <td>{transaction.FITID}</td>
     <td>{transaction.NAME}</td>
     <td>{transaction.MEMO}</td>
+    <td>{transaction.TRNAMT}</td>
   </tr>);
 };
 

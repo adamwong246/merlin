@@ -33,7 +33,6 @@ storiesOf('AccountTransactions', module)
    <table>
 
     <tr>
-      <th>tag</th>
       <th>TRNTYPE</th>
       <th>DTPOSTED</th>
       <th>TRNAMT</th>

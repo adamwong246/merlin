@@ -7,12 +7,14 @@ const AccountTransactions = ({ transactions }) => {
     <tr>
       <th>TRNTYPE</th>
       <th>DTPOSTED</th>
-      <th>TRNAMT</th>
       <th>FITID</th>
       <th>NAME</th>
       <th>MEMO</th>
+      <th>TRNAMT</th>
     </tr>
     { transactions.map((e) => <AccountTransaction transaction={e} ></AccountTransaction>)}
+
+    {}
    </table>
  )
 };
