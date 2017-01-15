@@ -1,11 +1,10 @@
 import React from 'react';
 import AccountTransaction from './AccountTransaction.js'
 
-const AccountTransactions = ({ transList }) => {
+const AccountTransactions = ({ transactions }) => {
  return (
    <table>
     <tr>
-     <th>tag</th>
       <th>TRNTYPE</th>
       <th>DTPOSTED</th>
       <th>TRNAMT</th>
@@ -13,7 +12,7 @@ const AccountTransactions = ({ transList }) => {
       <th>NAME</th>
       <th>MEMO</th>
     </tr>
-    { transList.map((e) => <AccountTransaction transaction={e} ></AccountTransaction>)}
+    { transactions.map((e) => <AccountTransaction transaction={e} ></AccountTransaction>)}
    </table>
  )
 };

@@ -3,7 +3,6 @@ import React from 'react';
 const AccountTransaction = ({ transaction }) => {
  return (
   <tr>
-    <td></td>
     <td>{transaction.TRNTYPE}</td>
     <td>{transaction.DTPOSTED}</td>
     <td>{transaction.TRNAMT}</td>

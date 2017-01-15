@@ -1,0 +1,5 @@
+[
+ {"name": "internet", "pattern": "COMCAST COMCAST", "id": "1"},
+ {"name": "transportation", "pattern": "LYFT", "id": "2"},
+ {"name": "transportation2", "pattern": "LYFT.*7", "id": "3"}
+]

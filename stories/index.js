@@ -6,8 +6,13 @@ import Welcome from './Welcome';
 import AccountTransactions from './AccountTransactions.js'
 import AccountTransaction from './AccountTransaction.js'
 import OfcViewer from './OfcViewer.js'
+import Tag from './Tag.js'
+import Tags from './Tags.js'
 
 const ofcData = require('./data.json');
+const tagsData = require('./tags.json');
+console.log(tagsData);
+
 const transactions = ofcData.BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
 
 storiesOf('Welcome', module)
@@ -41,8 +46,16 @@ storiesOf('AccountTransactions', module)
    </table>
   ))
   .add('AccountTransactions', () => (
-    <AccountTransactions transList={transactions}/>
+    <AccountTransactions transactions={transactions}/>
   ))
   .add('ofc', () => (
-    <OfcViewer ofcData={ofcData}/>
-  ));;
+    <OfcViewer ofcData={ofcData} tagsData={tagsData}/>
+  ))
+  .add('tag', () => (
+    <Tag tag="foo"
+         transactions={transactions}/>
+       ))
+  .add('tags', () => (
+    <Tags name="foo"
+         ofcData={ofcData} tagsData={tagsData}/>
+       ));
