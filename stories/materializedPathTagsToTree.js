@@ -12,7 +12,7 @@ export default function materializedPathTagsToTree (tags) {
          var lastNode = currentNode;
          for (var k = 0; k < currentNode.length; k++) {
              if (currentNode[k].name == wantedNode) {
-                 currentNode[k].patterns = -1;
+                 currentNode[k].patterns = currentNode[k].patterns.concat(tags[i].pattern);
                  currentNode = currentNode[k].children;
                  break;
              }
@@ -23,11 +23,13 @@ export default function materializedPathTagsToTree (tags) {
              var newNode = currentNode[k] = {
               name: wantedNode,
               children: [],
-              pattern: tags[i].pattern
+              patterns: [tags[i].pattern]
              };
              currentNode = newNode.children;
          }
      }
+
+
 
  }
  return foldedTags;

@@ -2,39 +2,6 @@ import React, { Component, PropTypes } from 'react'
 
 import materializedPathTagsToTree from './materializedPathTagsToTree'
 
-
-// const materializedPathTagsToTree = (paths) => {
-//  var foldedTags = [];
-//  for (var i = 0; i < paths.length; i++) {
-//      var chain = paths[i].path.split(",").slice(1);
-//
-//      var currentNode = foldedTags;
-//      for (var j = 0; j < chain.length; j++) {
-//          var wantedNode = chain[j];
-//          var lastNode = currentNode;
-//          for (var k = 0; k < currentNode.length; k++) {
-//              if (currentNode[k].name == wantedNode) {
-//                  currentNode[k].patterns = -1;
-//                  currentNode = currentNode[k].children;
-//                  break;
-//              }
-//          }
-//          // If we couldn't find an item in this list of children
-//          // that has the right name, create one:
-//          if (lastNode == currentNode) {
-//              var newNode = currentNode[k] = {
-//               name: wantedNode,
-//               children: [],
-//               patterns: [paths[i].pattern]
-//              };
-//              currentNode = newNode.children;
-//          }
-//      }
-//
-//  }
-//  return foldedTags;
-// }
-
 const tMap = (tree, callback) =>{
   return tree.map((b)=>{
    b = callback(b);
@@ -56,9 +23,12 @@ const tReduce = (tree, reducer) => {
 
 const treeWithTransactions = (tree, transactions, tagData) => {
    return tMap(tree, (b)=>{
-    b.transactions = transactions.filter((t)=>{return new RegExp(b.pattern).test(t.NAME)});
+    b.transactions = transactions.filter((t)=>{
+     return b.patterns.filter((p)=>{return new RegExp(p).test(t.NAME)}).length > 0
+    });
     return b
-   }).concat({
+   })
+   .concat({
     name: "???",
     children: [],
     transactions: transactions.filter((t) => {
@@ -129,13 +99,11 @@ var FoldUnifiedTransTag = React.createClass({
       : null }
 
     </li>)
-
   }
 }
 );
 
 export default class FoldUnifiedTrans extends Component {
-
   render() {
     const children = talliedTree(
      summedTree(
@@ -146,6 +114,8 @@ export default class FoldUnifiedTrans extends Component {
       )
      )
     )
+
+    console.log(children);
 
     return (
       <ul className="tags">
