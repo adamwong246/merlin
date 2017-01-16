@@ -1,7 +1,7 @@
 import React from 'react';
 import Tag from './Tag.js'
 
-const FlatTags = ({ tagsData }) => {
+const FlatUnifedTags = ({ tagsData }) => {
  const tagComps = tagsData.map((tag) => {
    return (
     <tr>
@@ -19,4 +19,4 @@ const FlatTags = ({ tagsData }) => {
  )
 };
 
-export default FlatTags;
+export default FlatUnifedTags;

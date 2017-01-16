@@ -1,12 +1,12 @@
 import React from 'react';
 import Tag from './Tag.js'
 
-const FlatTransTagMatcher = ({tags, transaction}) => {
+const FlatUnifedTransTagMatcher = ({tags, transaction}) => {
  const dump = tags.filter((t) => new RegExp(t.pattern).test(transaction.NAME));
  return(<span>{JSON.stringify(dump)}</span>)
 }
 
-const FlatTrans = ({ tags, transactions }) => {
+const FlatUnifedTrans = ({ tags, transactions }) => {
  const tagComps = transactions.map((transaction) => {
    return (
     <tr>
@@ -14,7 +14,7 @@ const FlatTrans = ({ tags, transactions }) => {
       <td>{transaction.NAME}</td>
      </td>
      <td>
-      <FlatTransTagMatcher tags={tags} transaction={transaction} />
+      <FlatUnifedTransTagMatcher tags={tags} transaction={transaction} />
      </td>
     </tr>
    )
@@ -27,4 +27,4 @@ const FlatTrans = ({ tags, transactions }) => {
  )
 };
 
-export default FlatTrans;
+export default FlatUnifedTrans;

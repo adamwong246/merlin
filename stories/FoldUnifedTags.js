@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 
-export default class FoldTags extends Component {
+export default class FoldUnifedTags extends Component {
 
   render() {
 
@@ -11,7 +11,7 @@ export default class FoldTags extends Component {
         {children.map(t =>
           <li key={t.id} className="tag">
             <span>{t.name}</span>
-            {t.children && <FoldTags children={t.children}/>}
+            {t.children && <FoldUnifedTags children={t.children}/>}
           </li>
         )}
       </ul>
@@ -21,6 +21,6 @@ export default class FoldTags extends Component {
 
 }
 
-FoldTags.propTypes = {
+FoldUnifedTags.propTypes = {
   children: PropTypes.array.isRequired
 }

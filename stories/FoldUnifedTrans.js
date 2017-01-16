@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 
-var FoldTransTag = React.createClass({
+var FoldUnifedTransTag = React.createClass({
  getInitialState() {
    return { hide: 0 };
   },
@@ -35,7 +35,7 @@ var FoldTransTag = React.createClass({
       </table> : null }
 
 
-      { this.state.hide == 0 ? <FoldTrans children={tag.children}/> : null }
+      { this.state.hide == 0 ? <FoldUnifedTrans children={tag.children}/> : null }
 
     </li>)
 
@@ -43,7 +43,7 @@ var FoldTransTag = React.createClass({
 }
 );
 
-export default class FoldTrans extends Component {
+export default class FoldUnifedTrans extends Component {
 
   onClick () {
    alert("foo")
@@ -54,7 +54,7 @@ export default class FoldTrans extends Component {
 
     return (
       <ul className="tags">
-        {children.map(c => <FoldTransTag tag={c} /> )}
+        {children.map(c => <FoldUnifedTransTag tag={c} /> )}
       </ul>
     )
 
@@ -62,6 +62,6 @@ export default class FoldTrans extends Component {
 
 }
 
-FoldTrans.propTypes = {
+FoldUnifedTrans.propTypes = {
   children: PropTypes.array.isRequired
 }
