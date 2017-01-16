@@ -35,7 +35,6 @@ const materializedPathTagsToTree = (paths) => {
          for (var k = 0; k < currentNode.length; k++) {
              if (currentNode[k].name == wantedNode) {
                  currentNode[k].pattern = -1;
-                 // currentNode[k].summation = -1; //currentNode[k].children.reduce((memo, n)=> memo + n.summation);
                  currentNode = currentNode[k].children;
                  break;
              }
@@ -43,15 +42,10 @@ const materializedPathTagsToTree = (paths) => {
          // If we couldn't find an item in this list of children
          // that has the right name, create one:
          if (lastNode == currentNode) {
-             // const matchingTransactions = bigtransactions.filter((t)=>{return new RegExp(foldTagData[i].pattern).test(t.NAME)});
-
              var newNode = currentNode[k] = {
               name: wantedNode,
               children: [],
               pattern: paths[i].pattern
-              // summation: matchingTransactions.reduce((memo, mt) => {
-              //  return memo + Number(mt.TRNAMT)
-              // }, 0)
              };
              currentNode = newNode.children;
          }
@@ -83,12 +77,12 @@ const tReduce = (tree, reducer) => {
 
 const treeWithTransactions = (tree, transactions) => {
    return tMap(tree, (b)=>{
-    b.transactions = bigtransactions.filter((t)=>{return new RegExp(b.pattern).test(t.NAME)});
+    b.transactions = transactions.filter((t)=>{return new RegExp(b.pattern).test(t.NAME)});
     return b
    }).concat({
     name: "???",
     children: [],
-    transactions: bigtransactions.filter((t) => {
+    transactions: transactions.filter((t) => {
      return foldTagData.filter((tg) => {
       return new RegExp(tg.pattern).test(t.NAME)
      }).length == 0;
@@ -178,13 +172,16 @@ storiesOf('AccountTransactions', module)
  }).add('flatTrans', () => (
   <FlatTrans transactions={transactions} tags={tagsData}/>
  )).add('foldTrans', () => {
-
   const tree2 = talliedTree(summedTree(treeWithTransactions(materializedPathTagsToTree(foldTagData), bigtransactions)))
+  return (<FoldTrans children={tree2}/>)
+ }).add('double foldTrans', () => {
+  const treeNeg = talliedTree(summedTree(treeWithTransactions(materializedPathTagsToTree(foldTagData), bigtransactions.filter((t) => Number(t.TRNAMT) < 0 ))));
+  const treePos = talliedTree(summedTree(treeWithTransactions(materializedPathTagsToTree(foldTagData), bigtransactions.filter((t) => Number(t.TRNAMT) > 0 ))));
 
-
-
-  console.log(tree2);
-
-return (
-  <FoldTrans children={tree2}/>
-)});
+  return (
+   <div>
+    <div style={{float: "left"}}> <FoldTrans children={treeNeg}/> </div>
+    <div style={{float: "right"}}> <FoldTrans children={treePos}/> </div>
+   </div>)
+ });
+;

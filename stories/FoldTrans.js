@@ -18,10 +18,10 @@ var FoldTransTag = React.createClass({
     return (<li key={tag.id} className="tag">
       <a href="#"onClick={this.onClick}> { this.state.hide == 0 ? <span>hide</span> :  <span>show</span> } </a>
 
-      <span><b>{tag.name},</b> {tag.tally} </span>
+      <span><b>{tag.name},</b> {tag.summation} </span>
 
       { this.state.hide == 0 ?
-       <table>
+       <table >
             {tag.summation < 0 ? <tr >
               <td>sum</td>
               <td>{tag.summation}</td>
