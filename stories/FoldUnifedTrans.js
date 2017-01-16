@@ -1,5 +1,91 @@
 import React, { Component, PropTypes } from 'react'
 
+// http://stackoverflow.com/a/6232943/614612
+const materializedPathTagsToTree = (paths) => {
+ // console.log(paths);
+ var foldedTags = [];
+ for (var i = 0; i < paths.length; i++) {
+     var chain = paths[i].path.split(",").slice(1);
+
+     var currentNode = foldedTags;
+     for (var j = 0; j < chain.length; j++) {
+         var wantedNode = chain[j];
+         var lastNode = currentNode;
+         for (var k = 0; k < currentNode.length; k++) {
+             if (currentNode[k].name == wantedNode) {
+                 currentNode[k].pattern = -1;
+                 currentNode = currentNode[k].children;
+                 break;
+             }
+         }
+         // If we couldn't find an item in this list of children
+         // that has the right name, create one:
+         if (lastNode == currentNode) {
+             var newNode = currentNode[k] = {
+              name: wantedNode,
+              children: [],
+              pattern: paths[i].pattern
+             };
+             currentNode = newNode.children;
+         }
+     }
+
+ }
+ return foldedTags;
+}
+
+const tMap = (tree, callback) =>{
+  return tree.map((b)=>{
+   b = callback(b);
+   b.children = tMap(b.children, callback);
+   return b;
+  })
+}
+
+const tReduce = (tree, reducer) => {
+ return tree.children.reduce( (memo, b) => {
+  if (b.children.length) {
+   return memo + tReduce(b, reducer)
+  } else {
+   return reducer(memo, b);
+  }
+ }, 0)
+
+}
+
+const treeWithTransactions = (tree, transactions, tagData) => {
+   return tMap(tree, (b)=>{
+    b.transactions = transactions.filter((t)=>{return new RegExp(b.pattern).test(t.NAME)});
+    return b
+   }).concat({
+    name: "???",
+    children: [],
+    transactions: transactions.filter((t) => {
+     return tagData.filter((tg) => {
+      return new RegExp(tg.pattern).test(t.NAME)
+     }).length == 0;
+    }),
+    summation: "?"
+   })
+}
+
+const summedTree = (tree) => {
+ return tMap(tree, (b)=>{
+  b.summation = b.transactions.reduce((memo, transaction) => memo + Number(transaction.TRNAMT), 0);
+  return b;
+ });
+}
+
+const talliedTree = (tree) => {
+ return tMap(tree, (b)=>{
+  b.tally = tReduce(b, (memo, e) => {
+   return memo + e.summation || 0;
+  }, 0)
+  return b;
+ });
+}
+
+
 var FoldUnifedTransTag = React.createClass({
  getInitialState() {
    return { hide: 0 };
@@ -35,7 +121,11 @@ var FoldUnifedTransTag = React.createClass({
       </table> : null }
 
 
-      { this.state.hide == 0 ? <FoldUnifedTrans children={tag.children}/> : null }
+      { this.state.hide == 0 ? <ul className="tags">
+        {tag.children.map(c => <FoldUnifedTransTag tag={c} /> )}
+      </ul>
+
+      : null }
 
     </li>)
 
@@ -45,12 +135,16 @@ var FoldUnifedTransTag = React.createClass({
 
 export default class FoldUnifedTrans extends Component {
 
-  onClick () {
-   alert("foo")
-  }
   render() {
-
-    const { children } = this.props
+    const children = talliedTree(
+     summedTree(
+      treeWithTransactions(
+       materializedPathTagsToTree(this.props.tags),
+       this.props.transactions,
+       this.props.tags
+      )
+     )
+    )
 
     return (
       <ul className="tags">
@@ -60,8 +154,4 @@ export default class FoldUnifedTrans extends Component {
 
   }
 
-}
-
-FoldUnifedTrans.propTypes = {
-  children: PropTypes.array.isRequired
 }
