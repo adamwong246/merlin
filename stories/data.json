@@ -73,6 +73,14 @@
               "FITID": "201610204",
               "NAME": "LYFT *RIDE WED 7",
               "MEMO": "PURCHASE 10/19 LYFT.COM CA CARD 8848"
+            },
+            {
+              "TRNTYPE": "POS",
+              "DTPOSTED": "20161020120000.000",
+              "TRNAMT": "-25.68",
+              "FITID": "201610204",
+              "NAME": "Shandong",
+              "MEMO": "PURCHASE 10/19 Shandong chinese CARD 8848"
             }
           ]
         },

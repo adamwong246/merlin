@@ -1,5 +1,6 @@
 [
  {"name": "internet", "pattern": "COMCAST COMCAST", "id": "1"},
  {"name": "transportation", "pattern": "LYFT", "id": "2"},
- {"name": "soylent", "pattern": "SOYLENT", "id": "4"}
+ {"name": "food.utility", "pattern": "SOYLENT", "id": "3"},
+ {"name": "food.luxury", "pattern": "Shandong", "id": "4"}
 ]
