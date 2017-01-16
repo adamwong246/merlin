@@ -1,5 +1,6 @@
 import React from 'react';
 import { storiesOf, action, linkTo } from '@kadira/storybook';
+
 import Button from './Button';
 import Welcome from './Welcome';
 
@@ -14,23 +15,103 @@ import FlatTrans from './FlatTrans.js'
 import FoldTrans from './FoldTrans.js'
 
 const ofcData = require('./data.json');
+const big = require('./big.json');
 const tagsData = require('./tags.json');
 const foldTagData = require('./foldTagData.json');
 
 const transactions = ofcData.BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
+const bigtransactions = big.BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
 
-// storiesOf('Welcome', module)
-//   .add('to Storybook', () => (
-//     <Welcome showApp={linkTo('Button')}/>
-//   ));
-//
-// storiesOf('Button', module)
-//   .add('with text', () => (
-//     <Button onClick={action('clicked')}>Hello Button</Button>
-//   ))
-//   .add('with some emoji', () => (
-//     <Button onClick={action('clicked')}>😀 😎 👍 💯</Button>
-//   ));
+// http://stackoverflow.com/a/6232943/614612
+const materializedPathTagsToTree = (paths) => {
+ var foldedTags = [];
+ for (var i = 0; i < paths.length; i++) {
+     var chain = paths[i].path.split(",").slice(1);
+
+     var currentNode = foldedTags;
+     for (var j = 0; j < chain.length; j++) {
+         var wantedNode = chain[j];
+         var lastNode = currentNode;
+         for (var k = 0; k < currentNode.length; k++) {
+             if (currentNode[k].name == wantedNode) {
+                 currentNode[k].pattern = -1;
+                 // currentNode[k].summation = -1; //currentNode[k].children.reduce((memo, n)=> memo + n.summation);
+                 currentNode = currentNode[k].children;
+                 break;
+             }
+         }
+         // If we couldn't find an item in this list of children
+         // that has the right name, create one:
+         if (lastNode == currentNode) {
+             // const matchingTransactions = bigtransactions.filter((t)=>{return new RegExp(foldTagData[i].pattern).test(t.NAME)});
+
+             var newNode = currentNode[k] = {
+              name: wantedNode,
+              children: [],
+              pattern: paths[i].pattern
+              // summation: matchingTransactions.reduce((memo, mt) => {
+              //  return memo + Number(mt.TRNAMT)
+              // }, 0)
+             };
+             currentNode = newNode.children;
+         }
+     }
+
+ }
+ return foldedTags;
+}
+
+
+const tMap = (tree, callback) =>{
+  return tree.map((b)=>{
+   b = callback(b);
+   b.children = tMap(b.children, callback);
+   return b;
+  })
+}
+
+const tReduce = (tree, reducer) => {
+ return tree.children.reduce( (memo, b) => {
+  if (b.children.length) {
+   return memo + tReduce(b, reducer)
+  } else {
+   return reducer(memo, b);
+  }
+ }, 0)
+
+}
+
+const treeWithTransactions = (tree, transactions) => {
+   return tMap(tree, (b)=>{
+    b.transactions = bigtransactions.filter((t)=>{return new RegExp(b.pattern).test(t.NAME)});
+    return b
+   }).concat({
+    name: "???",
+    children: [],
+    transactions: bigtransactions.filter((t) => {
+     return foldTagData.filter((tg) => {
+      return new RegExp(tg.pattern).test(t.NAME)
+     }).length == 0;
+    }),
+    summation: "?"
+   })
+}
+
+const summedTree = (tree) => {
+ return tMap(tree, (b)=>{
+  b.summation = b.transactions.reduce((memo, transaction) => memo + Number(transaction.TRNAMT), 0);
+  return b;
+ });
+}
+
+const talliedTree = (tree) => {
+ return tMap(tree, (b)=>{
+  b.tally = tReduce(b, (memo, e) => {
+   return memo + e.summation || 0;
+  }, 0)
+  return b;
+ });
+}
 
 storiesOf('AccountTransactions', module)
  .add('AccountTransaction', () => (
@@ -98,49 +179,12 @@ storiesOf('AccountTransactions', module)
   <FlatTrans transactions={transactions} tags={tagsData}/>
  )).add('foldTrans', () => {
 
-  // http://stackoverflow.com/a/6232943/614612
-  var foldedTags = [];
-  for (var i = 0; i < foldTagData.length; i++) {
-      console.log(foldTagData[i]);
+  const tree2 = talliedTree(summedTree(treeWithTransactions(materializedPathTagsToTree(foldTagData), bigtransactions)))
 
-      var chain = foldTagData[i].path.split(",").slice(1);
 
-      var currentNode = foldedTags;
-      for (var j = 0; j < chain.length; j++) {
-          var wantedNode = chain[j];
-          var lastNode = currentNode;
-          for (var k = 0; k < currentNode.length; k++) {
-              if (currentNode[k].name == wantedNode) {
-                  // currentNode[k].transactions = foldTagData[i].pattern ? [] : transactions.filter((t)=>{return new RegExp(foldTagData[i].pattern).test(t.NAME)})
-                  currentNode[k].transactions = [];
-                  currentNode = currentNode[k].children;
-                  break;
-              }
-          }
-          // If we couldn't find an item in this list of children
-          // that has the right name, create one:
-          if (lastNode == currentNode) {
-              console.log("creating: ", wantedNode);
 
-              // if (wantedNode == "utilities"){debugger}
-
-              var newNode = currentNode[k] = {
-               name: wantedNode,
-               children: [],
-
-               transactions: transactions.filter((t)=>{return new RegExp(foldTagData[i].pattern).test(t.NAME)})
-              };
-              console.log("... ", newNode);
-              currentNode = newNode.children;
-          }
-          // debugger
-          // currentNode.transactions = foldTagData[i].pattern ? [] : transactions.filter((t)=>{return new RegExp(foldTagData[i].pattern).test(t.NAME)})
-      }
-
-  }
-
-  console.log(foldedTags);
+  console.log(tree2);
 
 return (
-  <FoldTrans children={foldedTags}/>
+  <FoldTrans children={tree2}/>
 )});

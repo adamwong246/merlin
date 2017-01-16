@@ -1,7 +1,8 @@
 [
+ {"path": ",utilities,water", "pattern": "h2o", "id": "5"},
  {"path": ",utilities,internet", "pattern": "COMCAST COMCAST", "id": "1"},
- {"path": ",transportation", "pattern": "LYFT", "id": "2"},
- {"path": ",food,boring", "pattern": "SOYLENT", "id": "3"},
- {"path": ",food,luxury", "pattern": "Shandong", "id": "4"},
- {"path": ",utilities,water", "pattern": "h2o", "id": "5"}
+ {"path": ",utilities,transportation", "pattern": "LYFT", "id": "2"},
+ {"path": ",utilities,food,boring", "pattern": "SOYLENT", "id": "3"},
+ {"path": ",utilities,food,luxury", "pattern": "Shandong", "id": "4"}
+
 ]

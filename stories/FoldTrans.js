@@ -10,7 +10,7 @@ export default class FoldTrans extends Component {
       <ul className="tags">
         {children.map(c =>
           <li key={c.id} className="tag">
-            <span>{c.name}</span>
+            <span><b>{c.name},</b>  {c.summation} / {c.tally} </span>
 
             <ul>
              {c.transactions.map(t =>
