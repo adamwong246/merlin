@@ -4,6 +4,7 @@ import FlatUnifedTags from './FlatUnifedTags.js'
 import FoldUnifedTags from './FoldUnifedTags.js'
 import FlatUnifedTrans from './FlatUnifedTrans.js'
 import FoldUnifedTrans from './FoldUnifedTrans.js'
+import FlatSplitTrans from './FlatSplitTrans.js'
 
 var ModalArea = React.createClass({
  getInitialState() {
@@ -36,14 +37,15 @@ var ModalArea = React.createClass({
     const splitOrUnifiedMode = this.state.splitOrUnified || this.props.splitOrUnified;
 
     if (nounMode == "tag" && flatOrFoldMode == "flat" && splitOrUnifiedMode == "unified"){
-     compon = <FlatUnifedTags tagsData={this.props.tagsData}/>
+     compon = <FlatUnifedTags tags={this.props.tags}/>
     } else if (nounMode == "tag" && flatOrFoldMode == "fold" && splitOrUnifiedMode == "unified"){
-     compon = <FoldUnifedTags tags={this.props.tagsData}/>
+     compon = <FoldUnifedTags tags={this.props.tags}/>
     } else if (nounMode == "tran" && flatOrFoldMode == "flat" && splitOrUnifiedMode == "unified"){
-     compon = <FlatUnifedTrans transactions={this.props. transactions} tags={this.props.tagsData}/>
+     compon = <FlatUnifedTrans transactions={this.props. transactions} tags={this.props.tags}/>
     }else if (nounMode == "tran" && flatOrFoldMode == "fold" && splitOrUnifiedMode == "unified"){
-     compon = <FoldUnifedTrans transactions={this.props.transactions}
-                               tags={this.props.tagsData} />
+     compon = <FoldUnifedTrans transactions={this.props.transactions} tags={this.props.tags} />
+    }else if (nounMode == "tran" && flatOrFoldMode == "flat" && splitOrUnifiedMode == "split"){
+     compon = <FlatSplitTrans transactions={this.props.transactions} tags={this.props.tags} />
     }
 
     return (

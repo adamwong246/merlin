@@ -1,8 +1,8 @@
 import React from 'react';
 import Tag from './Tag.js'
 
-const FlatUnifedTags = ({ tagsData }) => {
- const tagComps = tagsData.map((tag) => {
+const FlatUnifedTags = ({ tags }) => {
+ const tagComps = tags.map((tag) => {
    return (
     <tr>
      <td>

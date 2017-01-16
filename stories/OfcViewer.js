@@ -1,12 +1,12 @@
 import React from 'react';
 import AccountTransactions from './AccountTransactions.js'
 
-const OfcViewer = ({ ofcData, tagsData }) => {
+const OfcViewer = ({ ofcData, tags }) => {
  const transList = ofcData.BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
 
  const transactions = transList.map((transaction) => {
 
-   transaction.tags = tagsData
+   transaction.tags = tags
    .filter((tag) => new RegExp(tag.pattern).test(transaction.NAME))
    // .map((tag) => tag);
 

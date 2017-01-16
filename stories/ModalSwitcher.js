@@ -59,7 +59,7 @@ var ModalSwitcher = React.createClass({
     }
 
     return (
-      <div style={styles.main}> {nounComp} {floatOrFoldComp}
+      <div style={styles.main}> {nounComp} {floatOrFoldComp} {splitOrUnifiedComp}
       </div>
     );
   }
