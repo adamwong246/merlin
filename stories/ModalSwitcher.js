@@ -53,7 +53,7 @@ var ModalSwitcher = React.createClass({
     }
 
     if (this.props.splitOrUnified == 'split'){
-      splitOrUnifiedComp = (<a onClick={this.props.switchToUnifed} href="#"> split</a>)
+      splitOrUnifiedComp = (<a onClick={this.props.switchToUnified} href="#"> split</a>)
     } else if (this.props.splitOrUnified == 'unified'){
       splitOrUnifiedComp = (<a onClick={this.props.switchToSplit} href="#"> unified</a>)
     }

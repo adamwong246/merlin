@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react'
 
 // http://stackoverflow.com/a/6232943/614612
 const materializedPathTagsToTree = (paths) => {
- // console.log(paths);
  var foldedTags = [];
  for (var i = 0; i < paths.length; i++) {
      var chain = paths[i].path.split(",").slice(1);
@@ -86,7 +85,7 @@ const talliedTree = (tree) => {
 }
 
 
-var FoldUnifedTransTag = React.createClass({
+var FoldUnifiedTransTag = React.createClass({
  getInitialState() {
    return { hide: 0 };
   },
@@ -122,7 +121,7 @@ var FoldUnifedTransTag = React.createClass({
 
 
       { this.state.hide == 0 ? <ul className="tags">
-        {tag.children.map(c => <FoldUnifedTransTag tag={c} /> )}
+        {tag.children.map(c => <FoldUnifiedTransTag tag={c} /> )}
       </ul>
 
       : null }
@@ -133,7 +132,7 @@ var FoldUnifedTransTag = React.createClass({
 }
 );
 
-export default class FoldUnifedTrans extends Component {
+export default class FoldUnifiedTrans extends Component {
 
   render() {
     const children = talliedTree(
@@ -148,7 +147,7 @@ export default class FoldUnifedTrans extends Component {
 
     return (
       <ul className="tags">
-        {children.map(c => <FoldUnifedTransTag tag={c} /> )}
+        {children.map(c => <FoldUnifiedTransTag tag={c} /> )}
       </ul>
     )
 

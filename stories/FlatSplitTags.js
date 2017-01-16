@@ -1,16 +1,20 @@
 import React, { Component, PropTypes } from 'react'
-import FlatUnifedTrans from './FlatUnifedTrans.js'
+import FlatUnifiedTags from './FlatUnifiedTags.js'
 
 export default class FlatSplitTags extends Component {
 
   render() {
-   const negativeTags = this.props.tags.filter((t) => t.direction == "in" );
    const positiveTags = this.props.tags.filter((t) => t.direction == "out" );
+   const negativeTags = this.props.tags.filter((t) => t.direction == "in" );
+
    return (
-    <div>
-     <div style={{float: "left"}}> <FlatUnifedTrans tags={this.props.tags} transactions={negativeTrans}/> </div>
-     <div style={{float: "right"}}> <FlatUnifedTrans tags={this.props.tags} transactions={positiveTrans}/> </div>
-    </div>)
+    <table>
+     <tr><td>
+      <FlatUnifiedTags key="pos" tags={positiveTags} transactions={this.props.transactions}/>
+     </td><td>
+     <FlatUnifiedTags key="neg" tags={negativeTags} transactions={this.props.transactions}/>
+     </td></tr>
+    </table>)
 
 
   }

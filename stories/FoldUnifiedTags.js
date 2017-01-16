@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 
-var FoldUnifedTag = React.createClass({
+var FoldUnifiedTag = React.createClass({
   getInitialState() { return { hide: 0 }; },
 
   onClick () {
@@ -19,7 +19,7 @@ var FoldUnifedTag = React.createClass({
       {tags.map(t =>
         <li key={t.id} className="tag">
           <span>{t.name}</span>
-          {t.tags && <FoldUnifedTag tags={t.tags}/>}
+          {t.tags && <FoldUnifiedTag tags={t.tags}/>}
         </li>
       )}
     </ul>
@@ -28,10 +28,8 @@ var FoldUnifedTag = React.createClass({
 });
 
 
-export default class FoldUnifedTags extends Component {
-
+export default class FoldUnifiedTags extends Component {
   render() {
-
     const { tags } = this.props
 
     var foldedTags = [];
@@ -56,13 +54,10 @@ export default class FoldUnifedTags extends Component {
             }
         }
     }
-
-    return (<FoldUnifedTag tags={foldedTags}/>)
-
+    return (<FoldUnifiedTag tags={foldedTags}/>)
   }
-
 }
 
-FoldUnifedTags.propTypes = {
+FoldUnifiedTags.propTypes = {
   tags: PropTypes.array.isRequired
 }
