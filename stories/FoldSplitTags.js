@@ -2,10 +2,6 @@ import React, { Component, PropTypes } from 'react'
 import FoldUnifiedTags from './FoldUnifiedTags.js'
 
 var FoldSplitTags = React.createClass({
-  getInitialState() {
-   return { hide: 0 };
-  },
-
   render() {
    const positiveTags = this.props.tags.filter((t) => t.direction == "out" );
    const negativeTags = this.props.tags.filter((t) => t.direction == "in" );

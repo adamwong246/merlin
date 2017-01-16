@@ -4,6 +4,7 @@
  {"direction": "out", "path": ",utilities,transportation", "pattern": "LYFT", "id": "2"},
  {"direction": "out", "path": ",utilities,food,boring", "pattern": "SOYLENT", "id": "3"},
  {"direction": "out", "path": ",utilities,food,luxury", "pattern": "Shandong", "id": "4"},
- {"direction": "in", "path": ",income", "pattern": "something", "id": "5"}
+ {"direction": "in", "path": ",income", "pattern": "TRINET", "id": "6"},
+ {"direction": "in", "path": ",income", "pattern": "FROM Cash Transfer", "id": "7"}
 
 ]
