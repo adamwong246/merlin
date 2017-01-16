@@ -1,28 +1,60 @@
 import React, { Component, PropTypes } from 'react'
 
+var FoldTransTag = React.createClass({
+ getInitialState() {
+   return { hide: 0 };
+  },
+  onClick () {
+   if (this.state.hide){
+    this.setState({ hide: 0 });
+   } else {
+    this.setState({ hide: 1 });
+   }
+  },
+  render() {
+
+    const { tag } = this.props
+
+    return (<li key={tag.id} className="tag">
+      <a href="#"onClick={this.onClick}> { this.state.hide == 0 ? <span>hide</span> :  <span>show</span> } </a>
+
+      <span><b>{tag.name},</b> {tag.tally} </span>
+
+      { this.state.hide == 0 ?
+       <table>
+            {tag.summation < 0 ? <tr >
+              <td>sum</td>
+              <td>{tag.summation}</td>
+            </tr> : null}
+
+             {tag.transactions.map(t =>
+               <tr key={t.id} className="transaction">
+                 <td>{t.NAME}</td><td>{t.TRNAMT}$</td>
+               </tr>
+             )}
+      </table> : null }
+
+
+      { this.state.hide == 0 ? <FoldTrans children={tag.children}/> : null }
+
+    </li>)
+
+  }
+}
+);
+
 export default class FoldTrans extends Component {
 
+  onClick () {
+   alert("foo")
+  }
   render() {
 
     const { children } = this.props
 
     return (
       <ul className="tags">
-        {children.map(c =>
-          <li key={c.id} className="tag">
-            <span><b>{c.name},</b>  {c.summation} / {c.tally} </span>
-
-            <ul>
-             {c.transactions.map(t =>
-               <li key={t.id} className="transaction">
-                 <span>{t.NAME}, {t.TRNAMT}$</span>
-               </li>
-             )}
-            </ul>
-
-            {c.children && <FoldTrans children={c.children}/>}
-          </li>
-        )}
+        {children.map(c => <FoldTransTag tag={c} /> )}
       </ul>
     )
 
