@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react'
 import FlatUnifiedTrans from './FlatUnifiedTrans.js'
 
+const styles = require('./styles.json')
+
 export default class FlatSplitTrans extends Component {
 
   render() {
@@ -8,11 +10,12 @@ export default class FlatSplitTrans extends Component {
    const positiveTrans = this.props.transactions.filter((t) => Number(t.TRNAMT) > 0 );
 
    return (
-    <div>
-     <h4>FlatSplitTrans</h4>
-     <div style={{float: "left"}}> <FlatUnifiedTrans tags={this.props.tags} transactions={negativeTrans}/> </div>
-     <div style={{float: "right"}}> <FlatUnifiedTrans tags={this.props.tags} transactions={positiveTrans}/> </div>
-    </div>)
+    <table>
+      <tr>
+      <td style={styles.td} ><FlatUnifiedTrans tags={this.props.tags} transactions={negativeTrans}/></td>
+      <td style={styles.td} ><FlatUnifiedTrans tags={this.props.tags} transactions={positiveTrans}/></td>
+      </tr>
+    </table>)
 
 
   }

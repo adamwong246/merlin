@@ -41,26 +41,30 @@ var ModalSwitcher = React.createClass({
     var splitOrUnifiedComp;
 
     if (this.props.noun == 'tag'){
-      nounComp = (<a onClick={this.props.switchToTran} href="#"> tag</a>)
+      nounComp = (<span> <a onClick={this.props.switchToTran} href="#">tags</a> transactions </span>);
     } else if (this.props.noun == 'tran'){
-      nounComp = (<a onClick={this.props.switchToTag} href="#"> tran</a>)
+      nounComp = (<span> tags <a onClick={this.props.switchToTag} href="#">transactions</a> </span>);
     }
 
     if (this.props.flatOrFold == 'flat'){
-      floatOrFoldComp = (<a onClick={this.props.switchToFold} href="#"> flat</a>)
+      floatOrFoldComp = (<span><a onClick={this.props.switchToFold} href="#"> flat</a> fold</span>)
     } else if (this.props.flatOrFold == 'fold'){
-      floatOrFoldComp = (<a onClick={this.props.switchToFlat} href="#"> fold</a>)
+      floatOrFoldComp = (<span>flat <a onClick={this.props.switchToFlat} href="#"> fold</a></span>)
     }
 
     if (this.props.splitOrUnified == 'split'){
-      splitOrUnifiedComp = (<a onClick={this.props.switchToUnified} href="#"> split</a>)
+      splitOrUnifiedComp = (<span> unified <a onClick={this.props.switchToUnified} href="#"> split</a> </span>)
     } else if (this.props.splitOrUnified == 'unified'){
-      splitOrUnifiedComp = (<a onClick={this.props.switchToSplit} href="#"> unified</a>)
+      splitOrUnifiedComp = (<span> <a onClick={this.props.switchToSplit} href="#"> unified</a> split </span>)
     }
 
+
     return (
-      <div style={styles.main}> {floatOrFoldComp} {splitOrUnifiedComp} {nounComp}
-      </div>
+      <ul>
+      <li>{floatOrFoldComp}</li>
+      <li>{splitOrUnifiedComp}</li>
+      <li>{nounComp}</li>
+      </ul>
     );
   }
 });

@@ -6,22 +6,21 @@ const FlatUnifiedTransTagMatcher = ({tags, transaction}) => {
 }
 
 const FlatUnifiedTrans = ({ tags, transactions }) => {
- const tagComps = transactions.map((transaction) => {
-   return (
-    <tr>
-     <td>
-      <td>{transaction.NAME}</td>
-     </td>
-     <td>
-      <FlatUnifiedTransTagMatcher tags={tags} transaction={transaction} />
-     </td>
-    </tr>
-   )
- })
 
  return (
   <table>
-     {tagComps}
+     {transactions.map((transaction) => {
+       return (
+        <tr>
+         <td>
+          <td>{transaction.NAME}</td>
+         </td>
+         <td>
+          <FlatUnifiedTransTagMatcher tags={tags} transaction={transaction} />
+         </td>
+        </tr>
+       )
+     })}
   </table>
  )
 };

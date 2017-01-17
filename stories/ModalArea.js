@@ -70,6 +70,7 @@ var ModalArea = React.createClass({
                       splitOrUnified={splitOrUnifiedMode}
                       switchToSplit={this.switchToSplit}
                       switchToUnified={this.switchToUnified}/>
+       <hr/>
        {compon}
       </div>
     );
