@@ -3,7 +3,7 @@ import React from 'react';
 const FlatUnifiedTags = ({ tags }) => {
  const tagComps = tags.map((tag) => {
    return (
-    <li>{JSON.stringify(tag)}</li>
+    <li>{`${tag.direction}, ${tag.pattern} -> ${tag.path}`}</li>
    )
  })
 

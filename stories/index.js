@@ -13,13 +13,15 @@ import FlatSplitTags from './FlatSplitTags.js'
 import FoldSplitTags from './FoldSplitTags.js'
 import FoldSplitTrans from './FoldSplitTrans.js'
 
+import './styles.css'
+
 const transactions = require('./transactions.json').BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
 const tags = require('./tags.json');
 
 storiesOf('Merlin', module)
   .add('modal switcher', () => {
    return (<ModalSwitcher noun="tag" flatOrFold="flat" splitOrUnified="unified"/>)}).add('modal area', () => {
-     return (<ModalArea noun="tran" flatOrFold="fold" splitOrUnified="unified" tags={tags} transactions={transactions}/> )
+     return (<ModalArea noun="tran" flatOrFold="fold" splitOrUnified="split" tags={tags} transactions={transactions}/> )
    })
   .add('FlatUnifiedTags', () => (<FlatUnifiedTags transactions={transactions} tags={tags} /> ))
   .add('FlatUnifiedTrans', () => (<FlatUnifiedTrans transactions={transactions} tags={tags}/>))

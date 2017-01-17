@@ -1,8 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import FlatUnifiedTags from './FlatUnifiedTags.js'
 
-const styles = require('./styles.json');
-
 export default class FlatSplitTags extends Component {
 
   render() {
@@ -12,8 +10,8 @@ export default class FlatSplitTags extends Component {
    return (
     <table>
      <tr>
-     <td style={styles.td}><FlatUnifiedTags key="pos" tags={positiveTags} transactions={this.props.transactions}/></td>
-     <td style={styles.td}><FlatUnifiedTags key="neg" tags={negativeTags} transactions={this.props.transactions}/></td>
+     <td><FlatUnifiedTags key="pos" tags={positiveTags} transactions={this.props.transactions}/></td>
+     <td><FlatUnifiedTags key="neg" tags={negativeTags} transactions={this.props.transactions}/></td>
      </tr>
     </table>)
 

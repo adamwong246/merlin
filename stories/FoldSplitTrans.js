@@ -1,8 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import FoldUnifiedTrans from './FoldUnifiedTrans.js'
 
-const styles = require('./styles.json');
-
 var FoldSplitTags = React.createClass({
   render() {
    const positiveTags = this.props.tags.filter((t) => t.direction == "out" );
@@ -13,8 +11,8 @@ var FoldSplitTags = React.createClass({
    return (
     <table>
      <tr>
-       <td style={styles.td} > <FoldUnifiedTrans key="pos" tags={positiveTags} transactions={positiveTrans}/> </td>
-       <td style={styles.td} > <FoldUnifiedTrans key="neg" tags={negativeTags} transactions={negativeTrans}/> </td>
+       <td> <FoldUnifiedTrans key="pos" tags={positiveTags} transactions={positiveTrans}/> </td>
+       <td> <FoldUnifiedTrans key="neg" tags={negativeTags} transactions={negativeTrans}/> </td>
      </tr>
     </table>)
  }
