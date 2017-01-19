@@ -58,13 +58,20 @@ const talliedTree = (tree) => {
 
 var FoldUnifiedTransTag = React.createClass({
  getInitialState() {
-   return { hide: 0 };
+   return { hideTransactions: 0, hideChildren: 0 };
   },
-  onClick () {
-   if (this.state.hide){
-    this.setState({ hide: 0 });
+  toggleTransactions () {
+   if (this.state.hideTransactions){
+    this.setState({ hideTransactions: 0 });
    } else {
-    this.setState({ hide: 1 });
+    this.setState({ hideTransactions: 1 });
+   }
+  },
+  toggleChildren () {
+   if (this.state.hideChildren){
+    this.setState({ hideChildren: 0 });
+   } else {
+    this.setState({ hideChildren: 1 });
    }
   },
   render() {
@@ -74,17 +81,22 @@ var FoldUnifiedTransTag = React.createClass({
     return (<li key={tag.id} className="tag">
 
       <span>
-        <b>{tag.name},</b> {tag.tally}
+        <b>{tag.name} </b>
+        { tag.tally != 0 ? tag.tally : null }
+        { tag.children.length ? <button onClick={this.toggleChildren}> { !this.state.hideChildren ? 'hide children' : 'show children' } </button> : null }
       </span>
 
+      { tag.transactions.length ?
        <table >
             <tr >
-              <th>local sum </th>
+              <th>sum </th>
               <th>{tag.summation}</th>
-              <th> <button onClick={this.onClick}> { this.state.hide == 0 ? 'hide' : 'show' } </button> </th>
+              <th>
+               <button onClick={this.toggleTransactions}> { !this.state.hideTransactions ? 'hide transactions' : 'show transactions' } </button>
+              </th>
             </tr>
 
-            { this.state.hide == 0 ? tag.transactions.map(t => {
+            { this.state.hideTransactions == 0 ? tag.transactions.map(t => {
                return (
                  <tr key={t.id} className="transaction">
                   <td>{t.NAME}</td><td>{t.TRNAMT}$</td>
@@ -95,9 +107,9 @@ var FoldUnifiedTransTag = React.createClass({
 
        </table>
 
-      <ul className="tags">
-        {tag.children.map(c => <FoldUnifiedTransTag tag={c} /> )}
-      </ul>
+ : null }
+
+       { this.state.hideChildren == 0 ? <ul className="tags"> {tag.children.map(c => <FoldUnifiedTransTag tag={c} /> )} </ul>  : null }
 
     </li>)
   }
@@ -118,7 +130,7 @@ export default class FoldUnifiedTrans extends Component {
 
     return (
       <ul className="tags">
-        {children.map(c => <FoldUnifiedTransTag tag={c} /> )}
+        {children.map(c => <FoldUnifiedTransTag key={c.id} tag={c} /> )}
       </ul>
     )
   }

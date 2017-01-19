@@ -28,10 +28,6 @@ export default function materializedPathTagsToTree (tags) {
              currentNode = newNode.children;
          }
      }
-
-
-
  }
- console.log(foldedTags)
  return foldedTags;
 }
