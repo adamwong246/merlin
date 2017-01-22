@@ -12,11 +12,13 @@ import FlatSplitTrans from './FlatSplitTrans.js'
 import FlatSplitTags from './FlatSplitTags.js'
 import FoldSplitTags from './FoldSplitTags.js'
 import FoldSplitTrans from './FoldSplitTrans.js'
+import D3DoublePartition from './D3DoublePartition.js'
 
 import './styles.css'
 
 const transactions = require('./transactions.json').BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
 const tags = require('./tags.json');
+const tags2 = require('./tags2.json');
 
 storiesOf('Merlin', module)
   .add('modal switcher', () => {
@@ -30,6 +32,7 @@ storiesOf('Merlin', module)
   .add('FlatSplitTrans', () => (<FlatSplitTrans transactions={transactions} tags={tags} /> ))
   .add('FlatSplitTags', () => (<FlatSplitTags transactions={transactions} tags={tags} /> ))
   .add('FoldSplitTags', () => (<FoldSplitTags transactions={transactions} tags={tags} /> ))
-  .add('FoldSplitTrans', () => (<FoldSplitTrans transactions={transactions} tags={tags} /> ));
+  .add('FoldSplitTrans', () => (<FoldSplitTrans transactions={transactions} tags={tags} /> ))
+  .add('D3DoublePartition', () => (<D3DoublePartition transactions={transactions} tags={tags2} /> ));
 
 ;

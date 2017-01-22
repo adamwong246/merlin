@@ -15,10 +15,14 @@
     "ofx": "",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "tree-reduce": "0.0.1"
+    "tree-reduce": "0.0.1",
+    "d3-hierarchy": "",
+    "d3-scale": ""
   },
   "devDependencies": {
     "@kadira/storybook": "^2.21.0",
+    "babel-plugin-transform-es3-member-expression-literals": "^6.22.0",
+    "babel-plugin-transform-es3-property-literals": "^6.22.0",
     "css-loader": "^0.26.1",
     "node-sass": "^4.3.0",
     "sass-loader": "^4.1.1"

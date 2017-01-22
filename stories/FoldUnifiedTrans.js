@@ -1,14 +1,9 @@
 import React, { Component, PropTypes } from 'react'
 
 import materializedPathTagsToTree from './materializedPathTagsToTree'
+import treeWithTransactions from './treeWithTransactions'
+import tMap from './tMap'
 
-const tMap = (tree, callback) =>{
-  return tree.map((b)=>{
-   b = callback(b);
-   b.children = tMap(b.children, callback);
-   return b;
-  })
-}
 
 const tReduce = (tree, reducer) => {
  return tree.children.reduce( (memo, b) => {
@@ -19,25 +14,6 @@ const tReduce = (tree, reducer) => {
   }
  }, 0)
 
-}
-
-const treeWithTransactions = (tree, transactions, tagData) => {
-   return tMap(tree, (b)=>{
-    b.transactions = transactions.filter((t)=>{
-     return b.patterns.filter((p)=>{return new RegExp(p).test(t.NAME)}).length > 0
-    });
-    return b
-   })
-   .concat({
-    name: "???",
-    children: [],
-    transactions: transactions.filter((t) => {
-     return tagData.filter((tg) => {
-      return new RegExp(tg.pattern).test(t.NAME)
-     }).length == 0;
-    }),
-    summation: "?"
-   })
 }
 
 const summedTree = (tree) => {

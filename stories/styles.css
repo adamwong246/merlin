@@ -5,3 +5,24 @@ table, tr, td {
 td {
   vertical-align: top;
 }
+
+.node rect {
+  fill: #ddd;
+}
+
+.node text {
+  font: 10px sans-serif;
+}
+
+.node tspan:last-child {
+  font-size: 9px;
+  fill-opacity: 0.8;
+}
+
+.node--internal text {
+  font-weight: bold;
+}
+
+.node--leaf rect {
+  fill-opacity: 0.6;
+}
