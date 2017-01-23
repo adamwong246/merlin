@@ -2,100 +2,107 @@ import React, { Component, PropTypes } from 'react';
 import {hierarchy, partition, stratify} from 'd3-hierarchy';
 import {scaleOrdinal, schemeCategory10} from 'd3-scale';
 
-// import materializedPathTagsToTree from './materializedPathTagsToTree'
-// import treeWithTransactions from './treeWithTransactions'
-
 var D3Partition = React.createClass({
   render() {
-    const width = 550;
-    const height = 300;
-
     var color = scaleOrdinal(schemeCategory10);
 
-    console.log("tags: " + this.props.tags)
+    const x = this.props.x;
+    const width = this.props.width;
+    const height = this.props.height;
 
-    var partioner = partition()
-    .size([width, height])
-    .padding(1)
-    .round(true);
+    const theTree = this.props.tree
+    theTree.value = this.props.totalThroughput
 
-    var stratifier = stratify()
-    .parentId(function(d) {
-      var toReturn = "";
+    partition()
+      .size([width/2, height/2])(this.props.tree);
 
-      if (d.id.lastIndexOf(".") == -1){
-        toReturn = "";
-      } else {
-        toReturn = d.id.substring(0, d.id.lastIndexOf("."));
-      }
-      return toReturn;
-    });
+    const rootWidth = (theTree.y1 - theTree.y0)
 
-    var root = stratifier(this.props.tags)
-      .sum(function(d) { return d.value; })
-      .sort(function(a, b) { return b.height - a.height || b.value - a.value; });
-
-    partioner(root);
-
-    return (<svg width={width} height={height}> {
-      root.descendants().map((d, ndx) => {
-        console.log(d);
-
+    return (<g className="node" transform={`translate(${x}, 0)`}> {
+      // skip over the ROOT need we made. We don't actually want to render it.
+      theTree.children[0].descendants().map((d, ndx) => {
         var translation = "";
 
         const w = d.y1 - d.y0;
         const h = d.x1 - d.x0;
 
         if (this.props.direction == "neg"){
-          translation = "translate("+ (d.y0) + "," + (d.x0) + ")";
+          translation = "translate("+ (d.y0 - rootWidth ) + "," + (d.x0) + ")";
         } else if (this.props.direction == "pos"){
-          // translation = "translate("+ (d.y0) + "," + (d.x0) + ")";
-          // translation = "translate("+ (100-(d.y1 - d.y0)) + "," + (d.x0) + ")";
-          translation = "translate("+ ((width - d.y0) - (w)) + "," + (d.x0) + ")";
+          translation = "translate("+ (width - d.y0 - w + rootWidth) + "," + (d.x0) + ")";
         }
 
-        console.log(this.props.direction);
-
+        debugger
         return (<g classname="node" transform={translation} >
-          <rect width={w}
+          <rect id={`rect-${d.id}`}
+                width={w}
                 height={h}
                 fill={color(d.id)} />
 
           <clipPath id={"clip-" + d.id} >
-            <use xlinkHref={"#rect-" + d.id + ""}/>
+            <use xlinkHref={`#rect-${d.id}`}/>
           </clipPath>
 
-          <text x="4">
-            <tspan y="13">{d.id.substring(d.id.lastIndexOf(".") + 1)}</tspan>
+          <text clipPath={`url(#clip-${d.id})`}
+                 x="4">
+            <tspan y="13">{`${d.id.substring(d.id.lastIndexOf(".") + 1)}, ${d.value}`}</tspan>
           </text>
 
         </g>);
       })
-    }</svg>);
+    }</g>);
 
   }
 });
 
+// makes a tree suitable for d3-hierarchy
+const maketree = (tags, direction) => {
+  return stratify()
+    // parentId returns the id of the node's parent
+    .parentId((d) => d.id.substring(0, d.id.lastIndexOf(".")))
+    // filter the tags first.
+    (tags.filter((t) => t.direction == direction)
+
+      // prepare the addresses for a second operation: Adjusting all addresses to allow for a ROOT node
+      // which we will use for layout purposes
+      .map((t) => {
+        const nt = t;
+        if (t.id.lastIndexOf("ROOT") == -1) {
+          nt.id = `ROOT.${t.id}`
+        }
+        return nt;
+      // add aformentioned ROOT
+      }).concat({
+        id: "ROOT"
+      }))
+    // D3 needs you to call sum and sort before layout rendering
+    .sum((d) => d.value)
+    .sort((a, b) => b.height - a.height || b.value - a.value);
+}
+
 var D3DoublePartition = React.createClass({
   render() {
-   const positiveTags = this.props.tags.filter((t) => t.direction == "in" );
-   const positiveTrans = this.props.transactions.filter((t) => Number(t.TRNAMT) > 0 );
+    const vWidth = 500;
+    const vHeight = 500;
+    const thirdWidth = vWidth/2;
 
-   const negativeTags = this.props.tags.filter((t) => t.direction == "out" );
-   const negativeTrans = this.props.transactions.filter((t) => Number(t.TRNAMT) < 0 );
+    const posRoot = maketree(this.props.tags, "in");
+    const negRoot = maketree(this.props.tags, "out");
 
+    const ttlthrpt = Math.max(posRoot.value, negRoot.value)
 
    return (
-    <table>
-     <tr>
-        <td>
-          <h3> incomes </h3>
-          <D3Partition direction="pos" tags={positiveTags} transactions={positiveTrans}/>
-          <D3Partition direction="neg" tags={negativeTags} transactions={negativeTrans}/>
-        </td>
+     <div id="svg-container">
+      <svg viewBox={`0 0 ${vWidth} ${vHeight}`} preserveAspectRatio="xMinYMin meet" className="svg-content">
 
-     </tr>
-    </table>)
+        <D3Partition y="0" x="0" width={thirdWidth} height={vHeight} direction="pos" tree={posRoot} totalThroughput={ttlthrpt}/>
+        <D3Partition y="0" x={thirdWidth} width={thirdWidth} height={vHeight} direction="neg" tree={negRoot} totalThroughput={ttlthrpt}/>
+
+        <circle cx="1" cy="1" r="5" fill="red"/>
+        <circle cx="250" cy="250" r="5" fill="red"/>
+        <circle cx="500" cy="500" r="5" fill="red"/>
+      </svg>
+    </div>)
  }
 });
 

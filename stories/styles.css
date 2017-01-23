@@ -6,16 +6,13 @@ td {
   vertical-align: top;
 }
 
-.node rect {
-  fill: #ddd;
-}
 
 .node text {
-  font: 10px sans-serif;
+  font: 8px sans-serif;
 }
 
 .node tspan:last-child {
-  font-size: 9px;
+  font-size: 6px;
   fill-opacity: 0.8;
 }
 
@@ -25,4 +22,20 @@ td {
 
 .node--leaf rect {
   fill-opacity: 0.6;
+}
+
+.svg-container {
+	display: inline-block;
+	position: relative;
+	width: 100%;
+	padding-bottom: 100%;
+	vertical-align: middle;
+	overflow: hidden;
+}
+
+.svg-content {
+	display: inline-block;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
