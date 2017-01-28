@@ -83,7 +83,7 @@ const maketree = (tags, direction) => {
 var D3DoublePartition = React.createClass({
   render() {
     const vWidth = 500;
-    const vHeight = 500;
+    const vHeight = 200;
     const halfWidth = vWidth/2;
 
     const posRoot = maketree(this.props.tags, "in");
