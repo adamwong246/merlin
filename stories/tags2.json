@@ -1,10 +1,10 @@
 [
   {"direction": "in", "id":  "income"},
   {"value": "6", "direction": "in", "id":  "income.adam"},
-  {"value": "3", "direction": "in", "id":  "income.vince"},
-  {"value": "1", "direction": "in", "id":  "income.smallRoom"},
-  {"value": "2", "direction": "in", "id":  "income.mediumRoom"},
-  {"value": "3", "direction": "in", "id":  "income.largeRood"},
+  {"value": "1.5", "direction": "in", "id":  "income.vince"},
+  {"value": "0.5", "direction": "in", "id":  "income.smallRoom"},
+  {"value": "0.6", "direction": "in", "id":  "income.mediumRoom"},
+  {"value": "0.7", "direction": "in", "id":  "income.largeRood"},
   {"value": ".1", "direction": "in", "id":  "income.allowance"},
 
   {"direction": "out", "id":  "outcome"},
@@ -12,7 +12,9 @@
   {"value": "2.5", "direction": "out", "id":"outcome.housing.mortgage"},
   {"value": "0.5", "direction": "out", "id":"outcome.housing.misc"},
   {"direction": "out", "id":  "outcome.livingExpenses"},
-  {"value": "1", "direction": "out", "id":  "outcome.livingExpenses.utilities"},
+  {"direction": "out", "id":  "outcome.livingExpenses.utilities"},
+  {"value": ".5", "direction": "out", "id":  "outcome.livingExpenses.utilities.water"},
+  {"value": ".5", "direction": "out", "id":  "outcome.livingExpenses.utilities.gas"},
   {"value": "1", "direction": "out", "id":  "outcome.livingExpenses.food"}
 
 ]

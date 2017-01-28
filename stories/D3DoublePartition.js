@@ -1,10 +1,10 @@
 import React, { Component, PropTypes } from 'react';
 import {hierarchy, partition, stratify} from 'd3-hierarchy';
-import {scaleOrdinal, schemeCategory10} from 'd3-scale';
+import {scaleOrdinal, schemeCategory20b, schemeCategory20c} from 'd3-scale';
 
 var D3Partition = React.createClass({
   render() {
-    var color = scaleOrdinal(schemeCategory10);
+    var color = scaleOrdinal(this.props.colors);
 
     const x = this.props.x;
     const width = this.props.width;
@@ -14,7 +14,7 @@ var D3Partition = React.createClass({
     theTree.value = this.props.totalThroughput
 
     partition()
-      .size([width/2, height/2])(this.props.tree);
+      .size([height, width])(this.props.tree);
 
     const rootWidth = (theTree.y1 - theTree.y0)
 
@@ -32,11 +32,11 @@ var D3Partition = React.createClass({
           translation = "translate("+ (width - d.y0 - w + rootWidth) + "," + (d.x0) + ")";
         }
 
-        debugger
         return (<g classname="node" transform={translation} >
           <rect id={`rect-${d.id}`}
                 width={w}
-                height={h}
+                height={h-1}
+                y={1}
                 fill={color(d.id)} />
 
           <clipPath id={"clip-" + d.id} >
@@ -45,7 +45,7 @@ var D3Partition = React.createClass({
 
           <text clipPath={`url(#clip-${d.id})`}
                  x="4">
-            <tspan y="13">{`${d.id.substring(d.id.lastIndexOf(".") + 1)}, ${d.value}`}</tspan>
+            <tspan y="8">{`${d.id.substring(d.id.lastIndexOf(".") + 1)}, ${d.value}`}</tspan>
           </text>
 
         </g>);
@@ -84,7 +84,7 @@ var D3DoublePartition = React.createClass({
   render() {
     const vWidth = 500;
     const vHeight = 500;
-    const thirdWidth = vWidth/2;
+    const halfWidth = vWidth/2;
 
     const posRoot = maketree(this.props.tags, "in");
     const negRoot = maketree(this.props.tags, "out");
@@ -95,12 +95,16 @@ var D3DoublePartition = React.createClass({
      <div id="svg-container">
       <svg viewBox={`0 0 ${vWidth} ${vHeight}`} preserveAspectRatio="xMinYMin meet" className="svg-content">
 
-        <D3Partition y="0" x="0" width={thirdWidth} height={vHeight} direction="pos" tree={posRoot} totalThroughput={ttlthrpt}/>
-        <D3Partition y="0" x={thirdWidth} width={thirdWidth} height={vHeight} direction="neg" tree={negRoot} totalThroughput={ttlthrpt}/>
+        <D3Partition y="0" x="0" width={halfWidth} height={vHeight}
+          direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
+          colors={schemeCategory20b}/>
+        <D3Partition y="0" x={halfWidth} width={halfWidth} height={vHeight}
+          direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
+          colors={schemeCategory20c}/>
 
-        <circle cx="1" cy="1" r="5" fill="red"/>
-        <circle cx="250" cy="250" r="5" fill="red"/>
-        <circle cx="500" cy="500" r="5" fill="red"/>
+        <circle cx="0" cy="0" r="5" fill="red"/>
+        <circle cx={halfWidth} cy={halfWidth} r="5" fill="red"/>
+        <circle cx={vWidth} cy={vHeight} r="5" fill="red"/>
       </svg>
     </div>)
  }
