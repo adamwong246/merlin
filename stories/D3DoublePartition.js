@@ -95,9 +95,12 @@ var D3Partition = React.createClass({
             <use xlinkHref={`#rect-${d.id}`}/>
           </clipPath>
 
-          <text clipPath={`url(#clip-${d.id})`}
-                 x="2">
-            <tspan y="4" >{`${d.id.substring(d.id.lastIndexOf(".") + 1)}, ${d.value}`}</tspan>
+          <text clipPath={`url(#clip-${d.id})`} x="2">
+            <tspan y="4" >{ d.id.substring(d.id.lastIndexOf(".") + 1) } </tspan>
+          </text>
+
+          <text clipPath={`url(#clip-${d.id})`} x="2">
+            <tspan y="8">{d.value}</tspan>
           </text>
 
         </g>);
@@ -119,7 +122,17 @@ const maketree = (tags, direction) => {
     (selectionOfTags)
 
     // D3 needs you to call sum and sort before layout rendering
-    .sum((d) => d.value)
+    // .sum((d) => d.value)
+    .sum((d) => {
+
+      if (d.transactions.length == 0){
+        return 0;
+      }
+
+      return Math.abs(d.transactions.reduce((memo, t) => {
+        return memo + Number(t.TRNAMT)
+      }, 0))
+    })
     .sort((a, b) => b.height - a.height || b.value - a.value);
 }
 
@@ -128,8 +141,58 @@ var D3DoublePartition = React.createClass({
     const tags = this.props.tags;
     const transactions = this.props.transactions;
 
-    const posRoot = maketree(tags, "in");
-    const negRoot = maketree(tags, "out");
+    const transactedTags = tags.map((t) => {
+     return {
+      ...t,
+      transactions:transactions.filter((tt)=>{
+       if (t.pattern){
+        return RegExp(t.pattern).test(tt.NAME);
+       }
+
+       return false
+       //
+      })
+     };
+    });
+
+    transactedTags.push(
+      {
+       "direction": "out",
+       "id":  "outcome.uncategorized",
+       "transactions": transactions.filter((t) => {
+
+        return tags.filter((tt) => {
+         if (tt.pattern && tt.direction == "out"){
+          return RegExp(tt.pattern).test(t.NAME);
+         }
+
+         return false
+
+        }).length == 0
+       })
+      }
+    );
+    
+    transactedTags.push(
+      {
+       "direction": "in",
+       "id":  "income.uncategorized",
+       "transactions": transactions.filter((t) => {
+
+        return tags.filter((tt) => {
+         if (tt.pattern && tt.direction == "in"){
+          return RegExp(tt.pattern).test(t.NAME);
+         }
+
+         return false
+
+        }).length == 0
+       })
+      }
+    );
+
+    const posRoot = maketree(transactedTags, "in");
+    const negRoot = maketree(transactedTags, "out");
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value)
 
@@ -155,10 +218,9 @@ var D3DoublePartition = React.createClass({
          {
            taggedTransactions.map((t) => {
             return(<tr>
-             <td>{t.DTPOSTED}</td>
               <td>{t.TRNAMT}</td>
               <td>{t.NAME}</td>
-              <td>{JSON.stringify(t.tags)}</td>
+              <td>{ t.tags.map((t) => t.id) }</td>
             </tr>);
            })
          }

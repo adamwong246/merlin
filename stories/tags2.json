@@ -1,20 +1,23 @@
 [
   {"direction": "in", "id":  "income"},
-  {"value": "6", "direction": "in", "id":  "income.adam"},
-  {"value": "1.5", "direction": "in", "id":  "income.vince"},
-  {"value": "0.5", "direction": "in", "id":  "income.smallRoom"},
-  {"value": "0.6", "direction": "in", "id":  "income.mediumRoom"},
-  {"value": "0.7", "direction": "in", "id":  "income.largeRood"},
-  {"value": ".1", "direction": "in", "id":  "income.allowance"},
+  {"direction": "in", "id":  "income.adam", "pattern": "TRINET"},
+  {"direction": "in", "id":  "income.vince"},
+  {"direction": "in", "id":  "income.smallRoom"},
+  {"direction": "in", "id":  "income.mediumRoom"},
+  {"direction": "in", "id":  "income.largeRood"},
+  {"direction": "in", "id":  "income.allowance"},
 
   {"direction": "out", "id":  "outcome"},
   {"direction": "out", "id":  "outcome.housing"},
-  {"value": "2.5", "direction": "out", "id":"outcome.housing.mortgage"},
-  {"value": "0.5", "direction": "out", "id":"outcome.housing.misc"},
+  {"direction": "out", "id":"outcome.housing.rent", "pattern": "YEAGER"},
+  {"direction": "out", "id":"outcome.housing.misc"},
   {"direction": "out", "id":  "outcome.livingExpenses"},
   {"direction": "out", "id":  "outcome.livingExpenses.utilities"},
-  {"value": ".5", "direction": "out", "id":  "outcome.livingExpenses.utilities.water"},
-  {"value": ".5", "direction": "out", "id":  "outcome.livingExpenses.utilities.gas"},
-  {"value": "1", "direction": "out", "id":  "outcome.livingExpenses.food", "pattern": "SOYLENT"}
+  {"direction": "out", "id":  "outcome.livingExpenses.utilities.water"},
+  {"direction": "out", "id":  "outcome.livingExpenses.utilities.gas"},
+  {"direction": "out", "id":  "outcome.livingExpenses.utilities.internet", "pattern": "COMCAST"},
+  {"direction": "out", "id":  "outcome.livingExpenses.food", "pattern": "SOYLENT"},
+  {"direction": "out", "id":  "outcome.livingExpenses.grocery", "pattern": "FRED MEYER"},
+  {"direction": "out", "id":  "outcome.livingExpenses.transportation", "pattern": "LYFT"}
 
 ]

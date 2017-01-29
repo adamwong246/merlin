@@ -15,7 +15,7 @@ td {
   font: 8px sans-serif;
 }
 
-.node tspan:last-child {
+.node tspan {
   font-size: 3px;
   fill-opacity: 0.8;
 }
