@@ -191,18 +191,21 @@ var D3DoublePartition = React.createClass({
         const tags = this.props.tags;
         const transactions = this.props.transactions;
 
+        // Making the tagged transactions is easier
         const taggedTransactions = makeTaggedTransactions(transactions, tags);
 
-        const positiveTransactions = transactions.filter((t) => Number(t.TRNAMT) > 0);
-        const positiveTags = tags.filter((t) => t.direction == "out");
+        // Make trees
+        // first, make the positive tree for incomes
+        const positiveTransactions = transactions.filter((transaction) => Number(transaction.TRNAMT) > 0);
+        const positiveTags = tags.filter((tag) => tag.direction == "in");
         var positiveTransactedTags = makeTransactedTags(positiveTransactions, positiveTags);
         positiveTransactedTags.push({
-            "direction": "out",
-            "id": "outcome.uncategorized",
-            "transactions": transactions.filter((t) => Number(t.TRNAMT) < 0).filter((t) => {
-                return tags.filter((tt) => {
-                    if (tt.pattern && tt.direction == "out") {
-                        return RegExp(tt.pattern).test(t.NAME);
+            "direction": "in",
+            "id": "income.uncategorized",
+            "transactions": transactions.filter((transaction) => {
+                return tags.filter((tag) => {
+                    if (tag.pattern && tag.direction == "in") {
+                        return RegExp(tag.pattern).test(transaction.NAME);
                     }
                     return false
                 }).length == 0
@@ -210,23 +213,22 @@ var D3DoublePartition = React.createClass({
         });
 
         console.log("positiveTransactedTags: ", positiveTransactedTags)
-
         const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
 
-        const negativeTransactions = transactions.filter((t) => Number(t.TRNAMT) < 0);
-        const negativeTags = tags.filter((t) => t.direction == "in");
+        // second, make the negative tree for outcomes
+        const negativeTransactions = transactions.filter((transaction) => Number(transaction.TRNAMT) < 0);
+        const negativeTags = tags.filter((tag) => tag.direction == "out");
         var negativeTransactedTags = makeTransactedTags(negativeTransactions, negativeTags);
         negativeTransactedTags.push({
-            "direction": "in",
-            "id": "income.uncategorized",
-            "transactions": transactions.filter((transaction) => Number(transaction.TRNAMT) > 0).filter((transaction) => {
-                const numberOfMatchingTags = tags.filter((tag) => {
-                    if (tag.pattern && tag.direction == "in") {
+            "direction": "out",
+            "id": "outcome.uncategorized",
+            "transactions": transactions.filter((transaction) => {
+                return tags.filter((tag) => {
+                    if (tag.pattern && tag.direction == "out") {
                         return RegExp(tag.pattern).test(transaction.NAME);
                     }
                     return false
-                });
-                return numberOfMatchingTags.length == 0
+                }).length == 0
             })
         });
 
@@ -259,13 +261,14 @@ var D3DoublePartition = React.createClass({
 
                 <div className="column-left">
                     <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
-                        <D3Partition direction="pos" tree={negRoot} totalThroughput={ttlthrpt} colors={schemeCategory20b}/>
+                        <D3Partition direction="pos" tree={posRoot} totalThroughput={ttlthrpt} colors={schemeCategory20c}/>
                     </svg>
+
                 </div>
 
                 <div className="column-right">
                     <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
-                        <D3Partition direction="neg" tree={posRoot} totalThroughput={ttlthrpt} colors={schemeCategory20c}/>
+                        <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt} colors={schemeCategory20b}/>
                     </svg>
                 </div>
             </div>
