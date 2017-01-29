@@ -6,18 +6,19 @@
   "scripts": {
     "start": "node index.js",
     "storybook": "start-storybook -p 6006",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build-storybook": "build-storybook"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "d3-hierarchy": "",
+    "d3-scale": "",
+    "jest": "^18.1.0",
     "ofx": "",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "tree-reduce": "0.0.1",
-    "d3-hierarchy": "",
-    "d3-scale": ""
+    "tree-reduce": "0.0.1"
   },
   "devDependencies": {
     "@kadira/storybook": "^2.21.0",

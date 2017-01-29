@@ -110,30 +110,73 @@ var D3Partition = React.createClass({
   }
 });
 
+// flatten the transactions into the tree proper
+const makeFlattenedSelectionOfTransactedTags = (tags) => {
+
+  var toReturn = [];
+  toReturn = tags.map( (t) => {
+    const tid = t.id;
+    if (t.transactions.length) {
+      return t.transactions.map( (tt) => {
+       return {...tt, id: `${tid}.${tt.FITID}`, value: Math.abs(Number(tt.TRNAMT))}
+      });
+    }
+    return false
+  })
+  .filter(Boolean)
+  .reduce( (memo, e) => memo.concat(e), [])
+  .concat(tags);
+  return toReturn;
+};
+
 // makes a tree suitable for d3-hierarchy
-const maketree = (tags, direction) => {
+const makeTreeOfTransactedTags = (tags, direction) => {
   // filter the tags first.
-  const selectionOfTags = tags.filter((t) => t.direction == direction);
+  // const selectionOfTransactedTags = tags.filter((t) => t.direction == direction);
+
+  const flattenedSelectionOfTransactedTags = makeFlattenedSelectionOfTransactedTags(tags);
 
   return stratify()
     // parentId returns the id of the node's parent
-    .parentId((d) => d.id.substring(0, d.id.lastIndexOf(".")))
+    .parentId((d) => {
+      return d.id.substring(0, d.id.lastIndexOf("."))
+    })
+
     // pass the stratify function the selected tags
-    (selectionOfTags)
+    (flattenedSelectionOfTransactedTags)
 
     // D3 needs you to call sum and sort before layout rendering
-    // .sum((d) => d.value)
-    .sum((d) => {
-
-      if (d.transactions.length == 0){
-        return 0;
-      }
-
-      return Math.abs(d.transactions.reduce((memo, t) => {
-        return memo + Number(t.TRNAMT)
-      }, 0))
-    })
+    .sum((d) => d.value)
     .sort((a, b) => b.height - a.height || b.value - a.value);
+}
+
+const makeTransactedTags = (transactions, tags) => {
+ return tags.map((t) => {
+  return {
+   ...t,
+   transactions:transactions.filter((tt)=>{
+    if (t.pattern){
+     return RegExp(t.pattern).test(tt.NAME);
+    }
+    return false
+   })
+  };
+ });
+}
+
+const makeTaggedTransactions = (transactions, tags) => {
+ return transactions.map((t) => {
+  return {
+   ...t,
+   tags:tags.filter((tt)=>{
+    if (tt.pattern){
+     return RegExp(tt.pattern).test(t.NAME);
+    }
+
+    return false
+   })
+  };
+ });
 }
 
 var D3DoublePartition = React.createClass({
@@ -141,110 +184,100 @@ var D3DoublePartition = React.createClass({
     const tags = this.props.tags;
     const transactions = this.props.transactions;
 
-    const transactedTags = tags.map((t) => {
-     return {
-      ...t,
-      transactions:transactions.filter((tt)=>{
-       if (t.pattern){
-        return RegExp(t.pattern).test(tt.NAME);
-       }
+    const taggedTransactions = makeTaggedTransactions(transactions, tags);
 
-       return false
-       //
-      })
-     };
-    });
+    const positiveTransactions = transactions.filter((t) => Number(t.TRNAMT) > 0 );
+    const positiveTags = tags.filter((t) => t.direction == "out" );
+    var positiveTransactedTags = makeTransactedTags(positiveTransactions, positiveTags);
+    positiveTransactedTags.push(
 
-    transactedTags.push(
       {
        "direction": "out",
        "id":  "outcome.uncategorized",
-       "transactions": transactions.filter((t) => {
-
+       "transactions": transactions
+       .filter((t) => Number(t.TRNAMT) < 0)
+       .filter((t) => {
         return tags.filter((tt) => {
          if (tt.pattern && tt.direction == "out"){
           return RegExp(tt.pattern).test(t.NAME);
          }
-
          return false
-
         }).length == 0
-       })
-      }
-    );
-    
-    transactedTags.push(
-      {
-       "direction": "in",
-       "id":  "income.uncategorized",
-       "transactions": transactions.filter((t) => {
-
-        return tags.filter((tt) => {
-         if (tt.pattern && tt.direction == "in"){
-          return RegExp(tt.pattern).test(t.NAME);
-         }
-
-         return false
-
-        }).length == 0
-       })
+      })
       }
     );
 
-    const posRoot = maketree(transactedTags, "in");
-    const negRoot = maketree(transactedTags, "out");
+    console.log(positiveTransactedTags)
+
+    const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
+
+    const negativeTransactions = transactions.filter((t) => Number(t.TRNAMT) < 0 );
+    const negativeTags = tags.filter((t) => t.direction == "in" );
+    var negativeTransactedTags = makeTransactedTags(negativeTransactions, negativeTags);
+    negativeTransactedTags.push(
+     {
+      "direction": "in",
+      "id":  "income.uncategorized",
+      "transactions": transactions
+      .filter((transaction) => Number(transaction.TRNAMT) > 0)
+      .filter((transaction) => {
+
+       const numberOfMatchingTags = tags.filter((tag) => {
+
+        if (tag.pattern && tag.direction == "in"){
+         return RegExp(tag.pattern).test(transaction.NAME);
+        }
+        return false
+       });
+
+
+       console.log(numberOfMatchingTags);
+       return numberOfMatchingTags.length == 0
+      })
+     }
+    );
+
+    console.log(negativeTransactedTags)
+    const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value)
 
-    const taggedTransactions = transactions.map((t) => {
-     return {
-      ...t,
-      tags:tags.filter((tt)=>{
-       if (tt.pattern){
-        return RegExp(tt.pattern).test(t.NAME);
-       }
+    return (
+     <div className="container">
+       <div className="column-center" style={ {height:'450px', overflowY: 'scroll'} }>
+        <table >
+         <tbody>
+          {
+            taggedTransactions.map((t) => {
+             return(<tr>
+               <td>{t.FITID}</td>
+               <td>{t.TRNAMT}</td>
+               <td>{t.NAME}</td>
+               <td>{ t.tags.map((t) => t.id) }</td>
+             </tr>);
+            })
+          }
+         </tbody>
+        </table>
+       </div>
 
-       return false
-       //
-      })
-     };
-    });
-
-   return (
-    <div className="container">
-      <div className="column-center" style={ {height:'450px', overflowY: 'scroll'} }>
-       <table >
-        <tbody>
-         {
-           taggedTransactions.map((t) => {
-            return(<tr>
-              <td>{t.TRNAMT}</td>
-              <td>{t.NAME}</td>
-              <td>{ t.tags.map((t) => t.id) }</td>
-            </tr>);
-           })
-         }
-        </tbody>
-       </table>
-      </div>
-
-      <div className="column-left">
-       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet" >
-         <D3Partition
-           direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
-           colors={schemeCategory20b}/>
-       </svg>
-      </div>
-
-      <div className="column-right">
-       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
+       <div className="column-left">
+        <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet" >
           <D3Partition
-           direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
-           colors={schemeCategory20c}/>
-       </svg>
-      </div>
-    </div>
-    );
+            direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
+            colors={schemeCategory20b}/>
+        </svg>
+       </div>
+
+       <div className="column-right">
+        <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
+           <D3Partition
+            direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
+            colors={schemeCategory20c}/>
+        </svg>
+       </div>
+     </div>
+     );
  }
 });
 
