@@ -15,6 +15,6 @@
   {"direction": "out", "id":  "outcome.livingExpenses.utilities"},
   {"value": ".5", "direction": "out", "id":  "outcome.livingExpenses.utilities.water"},
   {"value": ".5", "direction": "out", "id":  "outcome.livingExpenses.utilities.gas"},
-  {"value": "1", "direction": "out", "id":  "outcome.livingExpenses.food"}
+  {"value": "1", "direction": "out", "id":  "outcome.livingExpenses.food", "pattern": "SOYLENT"}
 
 ]

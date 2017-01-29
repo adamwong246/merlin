@@ -58,14 +58,13 @@ const partition = function() {
   return partition;
 }
 
-
 var D3Partition = React.createClass({
   render() {
     var color = scaleOrdinal(this.props.colors);
 
-    const x = this.props.x;
-    const width = this.props.width;
-    const height = this.props.height;
+    const x = 0;//this.props.x;
+    const width = 100;//this.props.width;
+    const height = 100;//this.props.height;
 
     const theTree = this.props.tree
 
@@ -85,7 +84,7 @@ var D3Partition = React.createClass({
           translation = "translate("+ (width - d.y0 - w) + "," + (d.x0) + ")";
         }
 
-        return (<g classname="node" transform={translation} >
+        return (<g className="node" transform={translation} >
           <rect id={`rect-${d.id}`}
                 width={w}
                 height={h-1}
@@ -97,8 +96,8 @@ var D3Partition = React.createClass({
           </clipPath>
 
           <text clipPath={`url(#clip-${d.id})`}
-                 x="4">
-            <tspan y="8">{`${d.id.substring(d.id.lastIndexOf(".") + 1)}, ${d.value}`}</tspan>
+                 x="2">
+            <tspan y="4" >{`${d.id.substring(d.id.lastIndexOf(".") + 1)}, ${d.value}`}</tspan>
           </text>
 
         </g>);
@@ -110,26 +109,14 @@ var D3Partition = React.createClass({
 
 // makes a tree suitable for d3-hierarchy
 const maketree = (tags, direction) => {
+  // filter the tags first.
+  const selectionOfTags = tags.filter((t) => t.direction == direction);
+
   return stratify()
     // parentId returns the id of the node's parent
     .parentId((d) => d.id.substring(0, d.id.lastIndexOf(".")))
-
-    // filter the tags first.
-    (tags.filter((t) => t.direction == direction)
-
-      // // prepare the addresses for a second operation: Adjusting all addresses to allow for a ROOT node
-      // // which we will use for layout purposes
-      // .map((t) => {
-      //   const nt = t;
-      //   if (t.id.lastIndexOf("ROOT") == -1) {
-      //     nt.id = `ROOT.${t.id}`
-      //   }
-      //   return nt;
-      // // add aformentioned ROOT
-      // }).concat({
-      //   id: "ROOT"
-      // })
-    )
+    // pass the stratify function the selected tags
+    (selectionOfTags)
 
     // D3 needs you to call sum and sort before layout rendering
     .sum((d) => d.value)
@@ -138,31 +125,64 @@ const maketree = (tags, direction) => {
 
 var D3DoublePartition = React.createClass({
   render() {
-    const vWidth = 500;
-    const vHeight = 100;
-    const halfWidth = vWidth/3;
+    const tags = this.props.tags;
+    const transactions = this.props.transactions;
 
-    const posRoot = maketree(this.props.tags, "in");
-    const negRoot = maketree(this.props.tags, "out");
+    const posRoot = maketree(tags, "in");
+    const negRoot = maketree(tags, "out");
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value)
 
+    const taggedTransactions = transactions.map((t) => {
+     return {
+      ...t,
+      tags:tags.filter((tt)=>{
+       if (tt.pattern){
+        return RegExp(tt.pattern).test(t.NAME);
+       }
+
+       return false
+       //
+      })
+     };
+    });
+
    return (
-     <div id="svg-container">
-      <svg viewBox={`0 0 ${vWidth} ${vHeight}`} preserveAspectRatio="xMinYMin meet" className="svg-content">
+    <div className="container">
+      <div className="column-center" style={ {height:'450px', overflowY: 'scroll'} }>
+       <table >
+        <tbody>
+         {
+           taggedTransactions.map((t) => {
+            return(<tr>
+             <td>{t.DTPOSTED}</td>
+              <td>{t.TRNAMT}</td>
+              <td>{t.NAME}</td>
+              <td>{JSON.stringify(t.tags)}</td>
+            </tr>);
+           })
+         }
+        </tbody>
+       </table>
+      </div>
 
-        <D3Partition y="0" x="0" width={halfWidth} height={vHeight}
-          direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
-          colors={schemeCategory20b}/>
-         <D3Partition y="0" x={halfWidth * 2} width={halfWidth} height={vHeight}
-          direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
-          colors={schemeCategory20c}/>
+      <div className="column-left">
+       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet" >
+         <D3Partition
+           direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
+           colors={schemeCategory20b}/>
+       </svg>
+      </div>
 
-        <circle cx="0" cy="0" r="5" fill="red"/>
-        <circle cx={halfWidth} cy={halfWidth} r="5" fill="red"/>
-        <circle cx={vWidth} cy={vHeight} r="5" fill="red"/>
-      </svg>
-    </div>)
+      <div className="column-right">
+       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
+          <D3Partition
+           direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
+           colors={schemeCategory20c}/>
+       </svg>
+      </div>
+    </div>
+    );
  }
 });
 
