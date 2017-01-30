@@ -206,25 +206,22 @@ const RightView = React.createClass({
   var focused = this.props.focused;
 
   var splitFocused = this.props.focused.split('.');
-  var negativePath = splitFocused.slice(0, -1).join(".")
+  var fillerTags = splitFocused.reduce( (memo, lm, ndx) => {
+    return memo.concat(splitFocused.slice(0, ndx+1).join('.'))
+  }, [])
+
+  fillerTags = fillerTags.slice(0, fillerTags.length-1)
+
   var tags = this.props.tags.filter( (tag) => {
    return tag.id.includes(focused)
-  })
-  .map( (tag) => {
-   var newId = tag.id.replace(negativePath, "");
+  }).concat(
+   fillerTags.map( (ft) => {
+    return {id: ft, direction: "out"}
+   })
+  )
 
-   if (newId[0] == "."){
-    newId = newId.slice(1)
-   }
-
-   return {...tag, id: newId};
-  }).filter( (tag) => {
-   return tag.id != ""
-  })
 
   const transactions = this.props.transactions;
-
-  console.log("focused: ", focused);
 
   const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags, focused == null)
   const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);

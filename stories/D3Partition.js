@@ -94,7 +94,7 @@ var D3Partitionlet = React.createClass({
     return (
       <g className="node" transform={translation}>
         <rect id={`rect-${d.id}`}
-              width={w} height={h - 1} y={1} fill={color(d.id)}
+              width={w} height={h} y={1} fill={color(d.id)}
               onClick={this.onClick}/>
 
         <clipPath id={"clip-" + d.id}>
