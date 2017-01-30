@@ -240,7 +240,7 @@ const CenteredView = React.createClass({
 
    return (
     <div>
-      <div className="column-third-center" style={{
+      <div className="centered-third-center" style={{
          height: '450px',
          overflowY: 'scroll'
        }}>
@@ -260,7 +260,7 @@ const CenteredView = React.createClass({
        </table>
      </div>
 
-     <div className="column-third-left">
+     <div className="centered-third-left">
        <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
          <D3Partition direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
                       colors={schemeCategory20c}
@@ -268,7 +268,7 @@ const CenteredView = React.createClass({
        </svg>
      </div>
 
-     <div className="column-third-right">
+     <div className="centered-third-right">
        <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
          <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
                       colors={schemeCategory20b}
@@ -291,7 +291,7 @@ const LeftView = React.createClass({
 
   return (
    <div>
-     <div className="column-third-center" style={{
+     <div className="left-third-center" style={{
         height: '450px',
         overflowY: 'scroll'
       }}>
@@ -311,7 +311,7 @@ const LeftView = React.createClass({
       </table>
     </div>
 
-    <div className="column-third-left">
+    <div className="left-third-left">
       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
         <D3Partition direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
                      colors={schemeCategory20c}
@@ -320,8 +320,8 @@ const LeftView = React.createClass({
 
     </div>
 
-    <div className="column-third-right">
-      <button onClick={this.props.goBack}>click me to go back right</button>
+    <div className="left-third-right">
+      <button onClick={this.props.goBack}>back to all</button>
     </div>
 
  </div>);
@@ -340,7 +340,7 @@ const RightView = React.createClass({
 
   return (
    <div>
-     <div className="column-third-center" style={{
+     <div className="right-third-center" style={{
         height: '450px',
         overflowY: 'scroll'
       }}>
@@ -360,11 +360,11 @@ const RightView = React.createClass({
       </table>
     </div>
 
-    <div className="column-third-left">
-      <button onClick={this.props.goBack}>click me to go back left</button>
+    <div className="right-third-left">
+      <button onClick={this.props.goBack}>back to all</button>
     </div>
 
-    <div className="column-third-right">
+    <div className="right-third-right">
       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
         <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
                      colors={schemeCategory20b}

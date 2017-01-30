@@ -1,9 +1,21 @@
-.column-third-left{ float: left; width: 33%; }
-.column-third-right{ float: right; width: 33%; }
-.column-third-center{ display: inline-block; width: 33%; }
+.centered-third-left{ float: left; width: 33%; }
+.centered-third-right{ float: right; width: 33%; }
+.centered-third-center{ display: inline-block; width: 33%; }
+
+.right-third-left{ float: left; width: 10%; }
+.right-third-right{ float: right; width: 45%; }
+.right-third-center{ display: inline-block; width: 45%; }
+
+.left-third-left{ float: left; width: 45%; }
+.left-third-right{ float: right; width: 10%; }
+.left-third-center{ display: inline-block; width: 45%; }
 
 table, tr, td {
    border: 1px solid black;
+}
+
+table {
+  width: 100%
 }
 
 td {
