@@ -43,14 +43,16 @@ const makeTreeOfTransactedTags = (tags, direction) => {
 }
 
 const makeTransactedTags = (transactions, tags) => {
-  return tags.map((t) => {
+  return tags.map((tag) => {
     return {
-      ...t,
-      transactions: transactions.filter((tt) => {
-        if (t.pattern) {
-          return RegExp(t.pattern).test(tt.NAME);
+      ...tag,
+      transactions: transactions.filter((transaction) => {
+        if (tag.pattern) {
+          return RegExp(tag.pattern).test(transaction.NAME);
         }
         return false
+      }).map( (transaction) => {
+       return {...transaction, collapsed: tag.collapsed}
       })
     };
   });
@@ -154,10 +156,18 @@ const CenteredView = React.createClass({
 
 const LeftView = React.createClass({
  render() {
-  const tags = this.props.tags;
+  var focused = this.props.focused;
+
+  const tags = this.props.tags.map( (tag) => {
+   return {
+    ...tag,
+    collapsed: !tag.id.includes(focused)
+   }
+  })
+
   const transactions = this.props.transactions;
 
-  const positiveTransactedTags = makePositiveTransactedTags(transactions, tags);
+  const positiveTransactedTags = makePositiveTransactedTags(transactions, tags, focused == null);
   const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
   const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, [])
   const ttlthrpt = posRoot.value;
@@ -205,21 +215,12 @@ const RightView = React.createClass({
  render() {
   var focused = this.props.focused;
 
-  var splitFocused = this.props.focused.split('.');
-  var fillerTags = splitFocused.reduce( (memo, lm, ndx) => {
-    return memo.concat(splitFocused.slice(0, ndx+1).join('.'))
-  }, [])
-
-  fillerTags = fillerTags.slice(0, fillerTags.length-1)
-
-  var tags = this.props.tags.filter( (tag) => {
-   return tag.id.includes(focused)
-  }).concat(
-   fillerTags.map( (ft) => {
-    return {id: ft, direction: "out"}
-   })
-  )
-
+  const tags = this.props.tags.map( (tag) => {
+   return {
+    ...tag,
+    collapsed: !tag.id.includes(focused)
+   }
+  })
 
   const transactions = this.props.transactions;
 

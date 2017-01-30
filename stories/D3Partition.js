@@ -74,17 +74,20 @@ var D3Partitionlet = React.createClass({
   render() {
     const width = this.props.width;
     const height = this.props.height;
-
-    var translation = "";
-
+    const colorScale = this.props.color;
     const d = this.props.d
+    const direction = this.props.direction;
 
     const w = d.y1 - d.y0;
     const h = d.x1 - d.x0;
 
-    const color = this.props.color;
+    var color = colorScale(d.id)
 
-    const direction = this.props.direction;
+    var translation = "";
+
+    if (this.props.d.data.collapsed){
+     color = 'black'
+    }
 
     if (direction == "neg") {
       translation = "translate(" + (d.y0) + "," + (d.x0) + ")";
@@ -94,7 +97,7 @@ var D3Partitionlet = React.createClass({
     return (
       <g className="node" transform={translation}>
         <rect id={`rect-${d.id}`}
-              width={w} height={h} y={1} fill={color(d.id)}
+              width={w} height={h} y={1} fill={color}
               onClick={this.onClick}/>
 
         <clipPath id={"clip-" + d.id}>
@@ -117,12 +120,12 @@ var D3Partitionlet = React.createClass({
 
 var D3Partition = React.createClass({
   render() {
+    const tree = this.props.tree
+
     var color = scaleOrdinal(this.props.colors);
     const x = 0;
     const width = 100;
     const height = 100;
-
-    const tree = this.props.tree
 
     partition().size([height, width])(tree, this.props.totalThroughput);
 
