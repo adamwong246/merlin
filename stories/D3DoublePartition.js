@@ -167,57 +167,67 @@ const makeTransactedTags = (transactions, tags) => {
   });
 }
 
+const makePositiveTransactedTags = (transactions, tags) => {
+  const positiveTransactions = transactions.filter((transaction) => Number(transaction.TRNAMT) > 0);
+  const positiveTags = tags.filter((tag) => tag.direction == "in");
+  var positiveTransactedTags = makeTransactedTags(positiveTransactions, positiveTags);
+  positiveTransactedTags.push({
+    "direction": "in",
+    "id": "income.uncategorized",
+    "transactions": positiveTransactions.filter((transaction) => {
+      return tags.filter((tag) => {
+        if (tag.pattern && tag.direction == "in") {
+          return RegExp(tag.pattern).test(transaction.NAME);
+        }
+        return false
+      }).length == 0
+    })
+  });
+  return positiveTransactedTags;
+};
+
+const makeNegativeTransactedTags = (transactions, tags) => {
+  const negativeTransactions = transactions.filter((transaction) => Number(transaction.TRNAMT) < 0);
+  const negativeTags = tags.filter((tag) => tag.direction == "out");
+  var negativeTransactedTags = makeTransactedTags(negativeTransactions, negativeTags);
+  negativeTransactedTags.push({
+    "direction": "out",
+    "id": "outcome.uncategorized",
+    "transactions": negativeTransactions.filter((transaction) => {
+      return tags.filter((tag) => {
+        if (tag.pattern && tag.direction == "out") {
+          return RegExp(tag.pattern).test(transaction.NAME);
+        }
+        return false
+      }).length == 0
+    })
+  });
+  return negativeTransactedTags;
+};
+
+const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, negativeTT) => {
+  return positiveTT.concat(negativeTT)
+  .map( (tag) => {
+    return tag.transactions.map((transaction) => {
+      return {...transaction, tags: [tag]}
+    })
+  })
+  .filter(Boolean)
+  .reduce((memo, e) => memo.concat(e), [])
+}
+
 var D3DoublePartition = React.createClass({
   render() {
     const tags = this.props.tags;
     const transactions = this.props.transactions;
 
-    // Make trees
-    // first, make the positive tree for incomes
-    const positiveTransactions = transactions.filter((transaction) => Number(transaction.TRNAMT) > 0);
-    const positiveTags = tags.filter((tag) => tag.direction == "in");
-    var positiveTransactedTags = makeTransactedTags(positiveTransactions, positiveTags);
-    positiveTransactedTags.push({
-      "direction": "in",
-      "id": "income.uncategorized",
-      "transactions": positiveTransactions.filter((transaction) => {
-        return tags.filter((tag) => {
-          if (tag.pattern && tag.direction == "in") {
-            return RegExp(tag.pattern).test(transaction.NAME);
-          }
-          return false
-        }).length == 0
-      })
-    });
+    const positiveTransactedTags = makePositiveTransactedTags(transactions, tags);
     const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
 
-    // second, make the negative tree for outcomes
-    const negativeTransactions = transactions.filter((transaction) => Number(transaction.TRNAMT) < 0);
-    const negativeTags = tags.filter((tag) => tag.direction == "out");
-    var negativeTransactedTags = makeTransactedTags(negativeTransactions, negativeTags);
-    negativeTransactedTags.push({
-      "direction": "out",
-      "id": "outcome.uncategorized",
-      "transactions": negativeTransactions.filter((transaction) => {
-        return tags.filter((tag) => {
-          if (tag.pattern && tag.direction == "out") {
-            return RegExp(tag.pattern).test(transaction.NAME);
-          }
-          return false
-        }).length == 0
-      })
-    });
+    const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags)
     const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
 
-    // Making the tagged transactions is easier
-    const taggedTransactions = positiveTransactedTags.concat(negativeTransactedTags)
-    .map( (tag) => {
-      return tag.transactions.map((transaction) => {
-        return {...transaction, tags: [tag]}
-      })
-    })
-    .filter(Boolean)
-    .reduce((memo, e) => memo.concat(e), [])
+    const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, negativeTransactedTags)
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value)
 
