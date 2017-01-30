@@ -223,6 +223,158 @@ const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, n
   .reduce((memo, e) => memo.concat(e), [])
 }
 
+const CenteredView = React.createClass({
+  render() {
+   const tags = this.props.tags;
+   const transactions = this.props.transactions;
+
+   const positiveTransactedTags = makePositiveTransactedTags(transactions, tags);
+   const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags)
+
+   const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
+   const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
+
+   const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, negativeTransactedTags)
+
+   const ttlthrpt = Math.max(posRoot.value, negRoot.value)
+
+   return (
+    <div>
+      <div className="column-third-center" style={{
+         height: '450px',
+         overflowY: 'scroll'
+       }}>
+       <table >
+         <tbody>
+           {taggedTransactions.map((t, ndx) => {
+             return (
+               <tr key={`tgdtrnsctn-${ndx}`}>
+                 <td>{t.FITID}</td>
+                 <td>{t.TRNAMT}</td>
+                 <td>{t.NAME}</td>
+                 <td>{t.tags.map((t) => t.id)}</td>
+               </tr>
+             );
+           })}
+         </tbody>
+       </table>
+     </div>
+
+     <div className="column-third-left">
+       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
+         <D3Partition direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
+                      colors={schemeCategory20c}
+                      onClick={this.props.setFocus} />
+       </svg>
+     </div>
+
+     <div className="column-third-right">
+       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
+         <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
+                      colors={schemeCategory20b}
+                      onClick={this.props.setFocus} />
+       </svg>
+     </div>
+  </div>);
+  }
+})
+
+const LeftView = React.createClass({
+ render() {
+  const tags = this.props.tags;
+  const transactions = this.props.transactions;
+
+  const positiveTransactedTags = makePositiveTransactedTags(transactions, tags);
+  const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
+  const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, [])
+  const ttlthrpt = posRoot.value;
+
+  return (
+   <div>
+     <div className="column-third-center" style={{
+        height: '450px',
+        overflowY: 'scroll'
+      }}>
+      <table >
+        <tbody>
+          {taggedTransactions.map((t, ndx) => {
+            return (
+              <tr key={`tgdtrnsctn-${ndx}`}>
+                <td>{t.FITID}</td>
+                <td>{t.TRNAMT}</td>
+                <td>{t.NAME}</td>
+                <td>{t.tags.map((t) => t.id)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <div className="column-third-left">
+      <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
+        <D3Partition direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
+                     colors={schemeCategory20c}
+                     onClick={this.props.setFocus} />
+      </svg>
+
+    </div>
+
+    <div className="column-third-right">
+      <button onClick={this.props.goBack}>click me to go back right</button>
+    </div>
+
+ </div>);
+ }
+})
+
+const RightView = React.createClass({
+ render() {
+  const tags = this.props.tags;
+  const transactions = this.props.transactions;
+
+  const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags)
+  const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
+  const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags([], negativeTransactedTags)
+  const ttlthrpt = negRoot.value;//Math.max(posRoot.value, negRoot.value)
+
+  return (
+   <div>
+     <div className="column-third-center" style={{
+        height: '450px',
+        overflowY: 'scroll'
+      }}>
+      <table >
+        <tbody>
+          {taggedTransactions.map((t, ndx) => {
+            return (
+              <tr key={`tgdtrnsctn-${ndx}`}>
+                <td>{t.FITID}</td>
+                <td>{t.TRNAMT}</td>
+                <td>{t.NAME}</td>
+                <td>{t.tags.map((t) => t.id)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+
+    <div className="column-third-left">
+      <button onClick={this.props.goBack}>click me to go back left</button>
+    </div>
+
+    <div className="column-third-right">
+      <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
+        <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
+                     colors={schemeCategory20b}
+                     onClick={this.props.setFocus} />
+      </svg>
+    </div>
+ </div>);
+ }
+})
+
 var D3DoublePartition = React.createClass({
   getInitialState() {
     return { focus: null};
@@ -232,60 +384,32 @@ var D3DoublePartition = React.createClass({
     this.setState({focus: data.id})
   },
 
+  goBack(){
+   this.setState({focus: null})
+  },
+
   render() {
     const tags = this.props.tags;
     const transactions = this.props.transactions;
 
-    const positiveTransactedTags = makePositiveTransactedTags(transactions, tags);
-    const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags)
+    var leftRightOrCentered;
 
-    const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
-    const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
-
-    const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, negativeTransactedTags)
-
-    const ttlthrpt = Math.max(posRoot.value, negRoot.value)
+    if (this.state.focus == null){
+      leftRightOrCentered = <CenteredView transactions={transactions} tags={tags} setFocus={this.setFocus} />
+    } else {
+     if (this.state.focus.substring(this.state.focus.lastIndexOf(".") + 1) == "outcome"){
+       leftRightOrCentered = <RightView transactions={transactions} tags={tags} setFocus={this.setFocus}
+                                        goBack={this.goBack}/>
+     } else if (this.state.focus.substring(this.state.focus.lastIndexOf(".") + 1) == "income"){
+       leftRightOrCentered = <LeftView transactions={transactions} tags={tags} setFocus={this.setFocus}
+                                        goBack={this.goBack}/>
+     }
+    }
 
     return (
-      <div className="container">
-
-        <div className="column-center" style={{
-            height: '450px',
-            overflowY: 'scroll'
-          }}>
-          <span>{JSON.stringify(this.state)}</span>
-          <table >
-            <tbody>
-              {taggedTransactions.map((t, ndx) => {
-                return (
-                  <tr key={`tgdtrnsctn-${ndx}`}>
-                    <td>{t.FITID}</td>
-                    <td>{t.TRNAMT}</td>
-                    <td>{t.NAME}</td>
-                    <td>{t.tags.map((t) => t.id)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="column-left">
-          <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
-            <D3Partition direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
-                         colors={schemeCategory20c}
-                         onClick={this.setFocus} />
-          </svg>
-
-        </div>
-
-        <div className="column-right">
-          <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
-            <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
-                         colors={schemeCategory20b}
-                         onClick={this.setFocus} />
-          </svg>
-        </div>
+      <div>
+        <span>{JSON.stringify(this.state)}</span>
+        {leftRightOrCentered}
       </div>
     );
   }

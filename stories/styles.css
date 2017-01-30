@@ -1,6 +1,6 @@
-.column-left{ float: left; width: 33%; }
-.column-right{ float: right; width: 33%; }
-.column-center{ display: inline-block; width: 33%; }
+.column-third-left{ float: left; width: 33%; }
+.column-third-right{ float: right; width: 33%; }
+.column-third-center{ display: inline-block; width: 33%; }
 
 table, tr, td {
    border: 1px solid black;
@@ -27,19 +27,3 @@ td {
 .node--leaf rect {
   fill-opacity: 0.6;
 }
-
-.svg-container {
-	display: inline-block;
-	position: relative;
-	width: 100%;
-	padding-bottom: 100%;
-	vertical-align: middle;
-	overflow: hidden;
-}
-
-/*.svg-content {
-	display: inline-block;
-	position: absolute;
-	top: 0;
-	left: 0;
-}*/
