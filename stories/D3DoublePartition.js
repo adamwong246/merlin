@@ -66,52 +66,72 @@ const partition = function() {
   return partition;
 }
 
+var D3Partitionlet = React.createClass({
+  onClick () {
+      this.props.onClick(this.props.d)
+  },
+
+  render() {
+    const width = this.props.width;
+    const height = this.props.height;
+
+    var translation = "";
+
+    const d = this.props.d
+
+    const w = d.y1 - d.y0;
+    const h = d.x1 - d.x0;
+
+    const color = this.props.color;
+
+    const direction = this.props.direction;
+
+    if (direction == "neg") {
+      translation = "translate(" + (d.y0) + "," + (d.x0) + ")";
+    } else if (direction == "pos") {
+      translation = "translate(" + (width - d.y0 - w) + "," + (d.x0) + ")";
+    }
+    return (
+      <g className="node" transform={translation}>
+        <rect id={`rect-${d.id}`}
+              width={w} height={h - 1} y={1} fill={color(d.id)}
+              onClick={this.onClick}/>
+
+        <clipPath id={"clip-" + d.id}>
+          <use xlinkHref={`#rect-${d.id}`}/>
+        </clipPath>
+
+        <text clipPath={`url(#clip-${d.id})`} x="2">
+          <tspan y="4">{d.data.NAME || d.id.substring(d.id.lastIndexOf(".") + 1)}
+          </tspan>
+        </text>
+
+        <text clipPath={`url(#clip-${d.id})`} x="2">
+          <tspan y="8">{d.value}</tspan>
+        </text>
+
+      </g>
+    );
+  }
+});
+
 var D3Partition = React.createClass({
   render() {
     var color = scaleOrdinal(this.props.colors);
+    const x = 0;
+    const width = 100;
+    const height = 100;
 
-    const x = 0; //this.props.x;
-    const width = 100; //this.props.width;
-    const height = 100; //this.props.height;
+    const tree = this.props.tree
 
-    const theTree = this.props.tree
-
-    partition().size([height, width])(this.props.tree, this.props.totalThroughput);
+    partition().size([height, width])(tree, this.props.totalThroughput);
 
     return (
       <g className="node" transform={`translate(${x}, 0)`}>
-        {theTree.descendants().map((d, ndx) => {
-          var translation = "";
-
-          const w = d.y1 - d.y0;
-          const h = d.x1 - d.x0;
-
-          if (this.props.direction == "neg") {
-            translation = "translate(" + (d.y0) + "," + (d.x0) + ")";
-          } else if (this.props.direction == "pos") {
-            translation = "translate(" + (width - d.y0 - w) + "," + (d.x0) + ")";
-          }
-          return (
-            <g className="node" transform={translation}>
-              <rect id={`rect-${d.id}`} width={w} height={h - 1} y={1} fill={color(d.id)}/>
-
-              <clipPath id={"clip-" + d.id}>
-                <use xlinkHref={`#rect-${d.id}`}/>
-              </clipPath>
-
-              <text clipPath={`url(#clip-${d.id})`} x="2">
-                <tspan y="4">{d.data.NAME || d.id.substring(d.id.lastIndexOf(".") + 1)}
-                </tspan>
-              </text>
-
-              <text clipPath={`url(#clip-${d.id})`} x="2">
-                <tspan y="8">{d.value}</tspan>
-              </text>
-
-            </g>
-          );
-        })
-      }</g>
+        {tree.descendants().map((d) => <D3Partitionlet d={d} direction={this.props.direction}
+                                                       color={color} width={width} height={height}
+                                                       onClick={this.props.onClick}/> )}
+      </g>
     );
   }
 });
@@ -167,43 +187,30 @@ const makeTransactedTags = (transactions, tags) => {
   });
 }
 
-const makePositiveTransactedTags = (transactions, tags) => {
-  const positiveTransactions = transactions.filter((transaction) => Number(transaction.TRNAMT) > 0);
-  const positiveTags = tags.filter((tag) => tag.direction == "in");
-  var positiveTransactedTags = makeTransactedTags(positiveTransactions, positiveTags);
-  positiveTransactedTags.push({
-    "direction": "in",
-    "id": "income.uncategorized",
-    "transactions": positiveTransactions.filter((transaction) => {
+const makePositiveOrNegativeTransactedTags = (transactions, tags, inOrOut) => {
+  const filteredTransactions = transactions.filter((transaction) => {
+    return (Number(transaction.TRNAMT) > 0 && inOrOut == "in") || (Number(transaction.TRNAMT) < 0 && inOrOut == "out")
+  });
+  const filteredTags = tags.filter((tag) => tag.direction == inOrOut);
+  var transactedTags = makeTransactedTags(filteredTransactions, filteredTags);
+  transactedTags.push({
+    "direction": inOrOut,
+    "id": `${inOrOut}come.uncategorized`,
+    "transactions": filteredTransactions.filter((transaction) => {
       return tags.filter((tag) => {
-        if (tag.pattern && tag.direction == "in") {
+        if (tag.pattern && tag.direction == inOrOut) {
           return RegExp(tag.pattern).test(transaction.NAME);
         }
         return false
       }).length == 0
     })
   });
-  return positiveTransactedTags;
+  return transactedTags;
 };
 
-const makeNegativeTransactedTags = (transactions, tags) => {
-  const negativeTransactions = transactions.filter((transaction) => Number(transaction.TRNAMT) < 0);
-  const negativeTags = tags.filter((tag) => tag.direction == "out");
-  var negativeTransactedTags = makeTransactedTags(negativeTransactions, negativeTags);
-  negativeTransactedTags.push({
-    "direction": "out",
-    "id": "outcome.uncategorized",
-    "transactions": negativeTransactions.filter((transaction) => {
-      return tags.filter((tag) => {
-        if (tag.pattern && tag.direction == "out") {
-          return RegExp(tag.pattern).test(transaction.NAME);
-        }
-        return false
-      }).length == 0
-    })
-  });
-  return negativeTransactedTags;
-};
+const makePositiveTransactedTags = (transactions, tags) => makePositiveOrNegativeTransactedTags(transactions, tags, "in")
+
+const makeNegativeTransactedTags = (transactions, tags) => makePositiveOrNegativeTransactedTags(transactions, tags, "out")
 
 const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, negativeTT) => {
   return positiveTT.concat(negativeTT)
@@ -217,14 +224,22 @@ const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, n
 }
 
 var D3DoublePartition = React.createClass({
+  getInitialState() {
+    return { focus: null};
+  },
+
+  setFocus(data){
+    this.setState({focus: data.id})
+  },
+
   render() {
     const tags = this.props.tags;
     const transactions = this.props.transactions;
 
     const positiveTransactedTags = makePositiveTransactedTags(transactions, tags);
-    const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
-
     const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags)
+
+    const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
     const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
 
     const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, negativeTransactedTags)
@@ -233,15 +248,17 @@ var D3DoublePartition = React.createClass({
 
     return (
       <div className="container">
+
         <div className="column-center" style={{
             height: '450px',
             overflowY: 'scroll'
           }}>
+          <span>{JSON.stringify(this.state)}</span>
           <table >
             <tbody>
-              {taggedTransactions.map((t) => {
+              {taggedTransactions.map((t, ndx) => {
                 return (
-                  <tr>
+                  <tr key={`tgdtrnsctn-${ndx}`}>
                     <td>{t.FITID}</td>
                     <td>{t.TRNAMT}</td>
                     <td>{t.NAME}</td>
@@ -255,14 +272,18 @@ var D3DoublePartition = React.createClass({
 
         <div className="column-left">
           <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
-            <D3Partition direction="pos" tree={posRoot} totalThroughput={ttlthrpt} colors={schemeCategory20c}/>
+            <D3Partition direction="pos" tree={posRoot} totalThroughput={ttlthrpt}
+                         colors={schemeCategory20c}
+                         onClick={this.setFocus} />
           </svg>
 
         </div>
 
         <div className="column-right">
           <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
-            <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt} colors={schemeCategory20b}/>
+            <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
+                         colors={schemeCategory20b}
+                         onClick={this.setFocus} />
           </svg>
         </div>
       </div>
