@@ -161,6 +161,7 @@ const makeFlattenedSelectionOfTransactedTags = (tags) => {
 
 // makes a tree suitable for d3-hierarchy
 const makeTreeOfTransactedTags = (tags, direction) => {
+
   const flattenedSelectionOfTransactedTags = makeFlattenedSelectionOfTransactedTags(tags);
 
   return stratify()
@@ -187,30 +188,34 @@ const makeTransactedTags = (transactions, tags) => {
   });
 }
 
-const makePositiveOrNegativeTransactedTags = (transactions, tags, inOrOut) => {
+const makePositiveOrNegativeTransactedTags = (transactions, tags, inOrOut, appendUncategorized) => {
   const filteredTransactions = transactions.filter((transaction) => {
     return (Number(transaction.TRNAMT) > 0 && inOrOut == "in") || (Number(transaction.TRNAMT) < 0 && inOrOut == "out")
   });
   const filteredTags = tags.filter((tag) => tag.direction == inOrOut);
   var transactedTags = makeTransactedTags(filteredTransactions, filteredTags);
-  transactedTags.push({
-    "direction": inOrOut,
-    "id": `${inOrOut}come.uncategorized`,
-    "transactions": filteredTransactions.filter((transaction) => {
-      return tags.filter((tag) => {
-        if (tag.pattern && tag.direction == inOrOut) {
-          return RegExp(tag.pattern).test(transaction.NAME);
-        }
-        return false
-      }).length == 0
-    })
-  });
+
+  if (appendUncategorized){
+   transactedTags.push({
+     "direction": inOrOut,
+     "id": `${inOrOut}come.uncategorized`,
+     "transactions": filteredTransactions.filter((transaction) => {
+       return tags.filter((tag) => {
+         if (tag.pattern && tag.direction == inOrOut) {
+           return RegExp(tag.pattern).test(transaction.NAME);
+         }
+         return false
+       }).length == 0
+     })
+   });
+  }
+
   return transactedTags;
 };
 
-const makePositiveTransactedTags = (transactions, tags) => makePositiveOrNegativeTransactedTags(transactions, tags, "in")
+const makePositiveTransactedTags = (transactions, tags, appendUncategorized) => makePositiveOrNegativeTransactedTags(transactions, tags, "in", appendUncategorized)
 
-const makeNegativeTransactedTags = (transactions, tags) => makePositiveOrNegativeTransactedTags(transactions, tags, "out")
+const makeNegativeTransactedTags = (transactions, tags, appendUncategorized) => makePositiveOrNegativeTransactedTags(transactions, tags, "out", appendUncategorized)
 
 const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, negativeTT) => {
   return positiveTT.concat(negativeTT)
@@ -228,8 +233,8 @@ const CenteredView = React.createClass({
    const tags = this.props.tags;
    const transactions = this.props.transactions;
 
-   const positiveTransactedTags = makePositiveTransactedTags(transactions, tags);
-   const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags)
+   const positiveTransactedTags = makePositiveTransactedTags(transactions, tags, true);
+   const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags, true)
 
    const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
    const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
@@ -330,13 +335,33 @@ const LeftView = React.createClass({
 
 const RightView = React.createClass({
  render() {
-  const tags = this.props.tags;
+  var focused = this.props.focused;
+
+  var splitFocused = this.props.focused.split('.');
+  var negativePath = splitFocused.slice(0, -1).join(".")
+  var tags = this.props.tags.filter( (tag) => {
+   return tag.id.includes(focused)
+  })
+  .map( (tag) => {
+   var newId = tag.id.replace(negativePath, "");
+
+   if (newId[0] == "."){
+    newId = newId.slice(1)
+   }
+
+   return {...tag, id: newId};
+  }).filter( (tag) => {
+   return tag.id != ""
+  })
+
   const transactions = this.props.transactions;
 
-  const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags)
+  console.log("focused: ", focused);
+
+  const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags, focused == null)
   const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
   const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags([], negativeTransactedTags)
-  const ttlthrpt = negRoot.value;//Math.max(posRoot.value, negRoot.value)
+  const ttlthrpt = negRoot.value;
 
   return (
    <div>
@@ -377,15 +402,15 @@ const RightView = React.createClass({
 
 var D3DoublePartition = React.createClass({
   getInitialState() {
-    return { focus: null};
+    return { focused: null};
   },
 
   setFocus(data){
-    this.setState({focus: data.id})
+    this.setState({focused: data.id})
   },
 
   goBack(){
-   this.setState({focus: null})
+   this.setState({focused: null})
   },
 
   render() {
@@ -394,16 +419,24 @@ var D3DoublePartition = React.createClass({
 
     var leftRightOrCentered;
 
-    if (this.state.focus == null){
-      leftRightOrCentered = <CenteredView transactions={transactions} tags={tags} setFocus={this.setFocus} />
+    if (this.state.focused == null){
+      leftRightOrCentered = <CenteredView transactions={transactions} tags={tags}
+                                          focused={this.state.focused}
+                                          setFocus={this.setFocus} />
     } else {
-     if (this.state.focus.substring(this.state.focus.lastIndexOf(".") + 1) == "outcome"){
-       leftRightOrCentered = <RightView transactions={transactions} tags={tags} setFocus={this.setFocus}
+     if (this.state.focused.split('.')[0] == "outcome"){
+       leftRightOrCentered = <RightView transactions={transactions} tags={tags}
+                                        focused={this.state.focused}
+                                        setFocus={this.setFocus}
                                         goBack={this.goBack}/>
-     } else if (this.state.focus.substring(this.state.focus.lastIndexOf(".") + 1) == "income"){
-       leftRightOrCentered = <LeftView transactions={transactions} tags={tags} setFocus={this.setFocus}
+                                      } else if (this.state.focused.split('.')[0] == "income"){
+       leftRightOrCentered = <LeftView transactions={transactions} tags={tags}
+                                        focused={this.state.focused}
+                                        setFocus={this.setFocus}
                                         goBack={this.goBack}/>
-     }
+      } else {
+       debugger
+      }
     }
 
     return (
