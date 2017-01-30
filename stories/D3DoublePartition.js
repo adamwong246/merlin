@@ -91,7 +91,7 @@ var D3Partition = React.createClass({
                     } else if (this.props.direction == "pos") {
                         translation = "translate(" + (width - d.y0 - w) + "," + (d.x0) + ")";
                     }
-
+                    console.log(d)
                     return (
                         <g className="node" transform={translation}>
                             <rect id={`rect-${d.id}`} width={w} height={h - 1} y={1} fill={color(d.id)}/>
@@ -101,7 +101,7 @@ var D3Partition = React.createClass({
                             </clipPath>
 
                             <text clipPath={`url(#clip-${d.id})`} x="2">
-                                <tspan y="4">{d.id.substring(d.id.lastIndexOf(".") + 1)}
+                                <tspan y="4">{d.data.NAME || d.id.substring(d.id.lastIndexOf(".") + 1)}
                                 </tspan>
                             </text>
 
@@ -134,14 +134,12 @@ const makeFlattenedSelectionOfTransactedTags = (tags) => {
         }
         return false
     }).filter(Boolean).reduce((memo, e) => memo.concat(e), []).concat(tags);
+
     return toReturn;
 };
 
 // makes a tree suitable for d3-hierarchy
 const makeTreeOfTransactedTags = (tags, direction) => {
-    // filter the tags first.
-    // const selectionOfTransactedTags = tags.filter((t) => t.direction == direction);
-
     const flattenedSelectionOfTransactedTags = makeFlattenedSelectionOfTransactedTags(tags);
 
     return stratify()
@@ -202,7 +200,7 @@ var D3DoublePartition = React.createClass({
         positiveTransactedTags.push({
             "direction": "in",
             "id": "income.uncategorized",
-            "transactions": transactions.filter((transaction) => {
+            "transactions": positiveTransactions.filter((transaction) => {
                 return tags.filter((tag) => {
                     if (tag.pattern && tag.direction == "in") {
                         return RegExp(tag.pattern).test(transaction.NAME);
@@ -222,7 +220,11 @@ var D3DoublePartition = React.createClass({
         negativeTransactedTags.push({
             "direction": "out",
             "id": "outcome.uncategorized",
-            "transactions": transactions.filter((transaction) => {
+            "transactions": negativeTransactions.filter((transaction) => {
+
+                // if (transaction.FITID == 201701131){
+                //     debugger
+                // }
                 return tags.filter((tag) => {
                     if (tag.pattern && tag.direction == "out") {
                         return RegExp(tag.pattern).test(transaction.NAME);
