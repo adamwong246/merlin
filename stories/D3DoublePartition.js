@@ -51,8 +51,6 @@ const makeTransactedTags = (transactions, tags) => {
           return RegExp(tag.pattern).test(transaction.NAME);
         }
         return false
-      }).map( (transaction) => {
-       return {...transaction, collapsed: tag.collapsed}
       })
     };
   });
@@ -65,7 +63,7 @@ const makePositiveOrNegativeTransactedTags = (transactions, tags, inOrOut, appen
   const filteredTags = tags.filter((tag) => tag.direction == inOrOut);
   var transactedTags = makeTransactedTags(filteredTransactions, filteredTags);
 
-  if (appendUncategorized){
+  if (true){
    transactedTags.push({
      "direction": inOrOut,
      "id": `${inOrOut}come.uncategorized`,
@@ -157,14 +155,7 @@ const CenteredView = React.createClass({
 const LeftView = React.createClass({
  render() {
   var focused = this.props.focused;
-
-  const tags = this.props.tags.map( (tag) => {
-   return {
-    ...tag,
-    collapsed: !tag.id.includes(focused)
-   }
-  })
-
+  const tags = this.props.tags
   const transactions = this.props.transactions;
 
   const positiveTransactedTags = makePositiveTransactedTags(transactions, tags, focused == null);
@@ -215,12 +206,7 @@ const RightView = React.createClass({
  render() {
   var focused = this.props.focused;
 
-  const tags = this.props.tags.map( (tag) => {
-   return {
-    ...tag,
-    collapsed: !tag.id.includes(focused)
-   }
-  })
+  const tags = this.props.tags;
 
   const transactions = this.props.transactions;
 
@@ -259,7 +245,8 @@ const RightView = React.createClass({
       <svg viewBox={`0 0 100 100`} preserveAspectRatio="xMinYMin meet">
         <D3Partition direction="neg" tree={negRoot} totalThroughput={ttlthrpt}
                      colors={schemeCategory20b}
-                     onClick={this.props.setFocus} />
+                     onClick={this.props.setFocus}
+                     focused={focused} />
       </svg>
     </div>
  </div>);
@@ -268,15 +255,34 @@ const RightView = React.createClass({
 
 var D3DoublePartition = React.createClass({
   getInitialState() {
-    return { focused: null};
+    return {
+     focused: null,
+     focusedX0: null,
+     focusedX1: null,
+     focusedY0: null,
+     focusedY1: null
+   }
   },
 
   setFocus(data){
-    this.setState({focused: data.id})
+    console.log(data)
+    this.setState({
+      focused: data.id,
+      focusedX0: data.x0,
+      focusedX1: data.x1,
+      focusedY0: data.y0,
+      focusedY1: data.y1
+    })
   },
 
   goBack(){
-   this.setState({focused: null})
+   this.setState({
+    focused: null,
+    focusedX0: null,
+    focusedX1: null,
+    focusedY0: null,
+    focusedY1: null
+  })
   },
 
   render() {
@@ -292,7 +298,7 @@ var D3DoublePartition = React.createClass({
     } else {
      if (this.state.focused.split('.')[0] == "outcome"){
        leftRightOrCentered = <RightView transactions={transactions} tags={tags}
-                                        focused={this.state.focused}
+                                        focused={this.state}
                                         setFocus={this.setFocus}
                                         goBack={this.goBack}/>
                                       } else if (this.state.focused.split('.')[0] == "income"){
