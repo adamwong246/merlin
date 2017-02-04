@@ -82,35 +82,20 @@
 
       const x0Scaled = xScale(d.x0);
       const x1Scaled = xScale(d.x1);
-
-      console.log(xScale.domain())
-
       const y0Scaled = yScale(d.y0);
       const y1Scaled = yScale(d.y1);
-
-      // console.log(x0Scaled, x1Scaled, y0Scaled, y1Scaled);
-
-      // const x0Scaled = d.x0;
-      // const x1Scaled = d.x1;
-      // const y0Scaled = d.y0;
-      // const y1Scaled = d.y1;
 
       const w = y1Scaled - y0Scaled;
       const h = x1Scaled - x0Scaled;
 
-      // console.log(w, h)
       var color = colorScale(d.id)
 
       var translation = "";
 
-      // if (this.props.d.data.collapsed){
-      //  color = 'black'
-      // }
-
       if (direction == "neg") {
         translation = `translate(${ y0Scaled },${ x0Scaled })`;
       } else if (direction == "pos") {
-        translation = "translate(" + (width - y0Scaled - w) + "," + ( x0Scaled ) + ")";
+        translation = `translate(${ width - y0Scaled - w }, ${x0Scaled} )`;
       }
       return (
         <g className="node" transform={translation}>
@@ -150,21 +135,14 @@
         .range([0, 100]);
 
         yScale = scaleLinear()
-        .domain([this.props.focused.focusedY0-10, 100])
+        .domain([this.props.focused.focusedY0, 100])
         .range([0, 100]);
 
-        // console.log(xScale.domain())
-        // console.log(yScale.domain())
       }
       else {
         xScale = scaleLinear().domain([0, 100]).range([0, 100]);
         yScale = scaleLinear().domain([0, 100]).range([0, 100]);
       }
-
-      // console.log(width, height)
-
-      // const xScale = scaleLinear().domain([0, width]).range([0, 100]);
-      // const yScale = scaleLinear().domain([0, height]).range([0, 100]);
 
       partition().size([100, 100])(tree, this.props.totalThroughput);
 
