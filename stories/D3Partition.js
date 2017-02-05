@@ -80,10 +80,10 @@
       const xScale = this.props.xScale;
       const yScale = this.props.yScale;
 
-      const x0Scaled = xScale(d.x0);
-      const x1Scaled = xScale(d.x1);
-      const y0Scaled = yScale(d.y0);
-      const y1Scaled = yScale(d.y1);
+      const x0Scaled = yScale(d.y0);
+      const x1Scaled = yScale(d.y1);
+      const y0Scaled = xScale(d.x0);
+      const y1Scaled = xScale(d.x1);
 
       const w = y1Scaled - y0Scaled;
       const h = x1Scaled - x0Scaled;
@@ -95,7 +95,7 @@
       if (direction == "neg") {
         translation = `translate(${ y0Scaled },${ x0Scaled })`;
       } else if (direction == "pos") {
-        translation = `translate(${ width - y0Scaled - w }, ${x0Scaled} )`;
+        translation = `translate(${y0Scaled}, ${height - x0Scaled} )`;
       }
       return (
         <g className="node" transform={translation}>
@@ -113,7 +113,7 @@
           </text>
 
           <text clipPath={`url(#clip-${d.id})`} x="2">
-            <tspan y="8">{d.value}</tspan>
+            <tspan y="8">{Math.round(d.value)}</tspan>
           </text>
 
         </g>
@@ -130,12 +130,14 @@
       var xScale, yScale;
 
       if (this.props.focused) {
+        const xPad = 0; (100 - this.props.focused.focusedX0) * 0.05;
         xScale = scaleLinear()
-        .domain([this.props.focused.focusedX0, this.props.focused.focusedX1])
+        .domain([this.props.focused.focusedX0 - xPad, this.props.focused.focusedX1])
         .range([0, 100]);
 
+        const yPad = 0; (100 - this.props.focused.focusedY0) * 0.05;
         yScale = scaleLinear()
-        .domain([this.props.focused.focusedY0, 100])
+        .domain([this.props.focused.focusedY0 - yPad, 100])
         .range([0, 100]);
 
       }
