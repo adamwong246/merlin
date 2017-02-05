@@ -82,9 +82,9 @@
       const x0Scaled = xScale(d.x0);
       const x1Scaled = xScale(d.x1);
 
-      const x = x0Scaled;
-      const y = y0Scaled;
-      const w = Math.abs(x1Scaled - x0Scaled);
+      const x = Math.min(x0Scaled, x1Scaled);
+      const y = Math.min(y0Scaled, y1Scaled);
+      const w = x1Scaled - x0Scaled;
       const h = Math.abs(y1Scaled - y0Scaled);
 
       const translation = `translate(${ x }, ${ y })`;
@@ -119,20 +119,21 @@
     render() {
       const tree = this.props.tree
       const transform = this.props.transform;
+      const base = this.props.base;
 
       var color = scaleOrdinal(this.props.colors);
 
       var xScale, yScale;
 
       if (this.props.direction == "neg") {
-        xScale = scaleLinear().domain([0, 100]).range([0, 100]);
-        yScale = scaleLinear().domain([0, 100]).range([0, 100]);
+        xScale = scaleLinear().domain([0, 100]).range([0, base]);
+        yScale = scaleLinear().domain([0, 100]).range([0, base]);
       } else if (this.props.direction == "pos") {
-        xScale = scaleLinear().domain([0, 100]).range([0, 100]);
-        yScale = scaleLinear().domain([0, 100]).range([0, 100])
+        xScale = scaleLinear().domain([0, 100]).range([0, base]);
+        yScale = scaleLinear().domain([0, 100]).range([base, 0]);
       }
 
-      partition().size([100, 100])(tree, this.props.totalThroughput);
+      partition().size([base, base])(tree, this.props.totalThroughput);
 
       return (
         <g className="node" transform={transform}>

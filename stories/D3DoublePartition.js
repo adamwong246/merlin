@@ -142,6 +142,8 @@ var D3DoublePartition = React.createClass({
     const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, negativeTransactedTags);
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
+    const base = 100;
+
     return (
      <div>
        <div className="left" >
@@ -161,8 +163,8 @@ var D3DoublePartition = React.createClass({
         </table>
       </div>
 
-      <div className="right">
-        <svg viewBox={`0 0 100 200`} preserveAspectRatio="xMinYMin meet">
+      <div className="right" >
+        <svg viewBox={`0 0 ${base} ${2 * base}`} preserveAspectRatio="xMinYMin meet" >
 
           <D3Partition direction="pos"
                        tree={posRoot}
@@ -170,7 +172,8 @@ var D3DoublePartition = React.createClass({
                        colors={schemeCategory20c}
                        onClick={this.props.setFocus}
                        focused={focused}
-                       transform={`translate(0, 0)`}/>
+                       transform={`translate(0, 0)`}
+                       base={base}/>
 
           <D3Partition direction="neg"
                        tree={negRoot}
@@ -178,17 +181,8 @@ var D3DoublePartition = React.createClass({
                        colors={schemeCategory20b}
                        onClick={this.props.setFocus}
                        focused={focused}
-                       transform={`translate(0, 100)`}/>
-
-           <circle cx='0' cy='0' r='2' fill='red'/>
-           <circle cx='100' cy='0' r='2' fill='red'/>
-           <circle cx='0' cy='100' r='2' fill='red'/>
-           <circle cx='50' cy='50' r='2' fill='red'/>
-           <circle cx='100' cy='100' r='2' fill='red'/>
-           <circle cx='50' cy='150' r='2' fill='red'/>
-           <circle cx='200' cy='200' r='2' fill='red'/>
-           <circle cx='0' cy='200' r='2' fill='red'/>
-           <circle cx='100' cy='200' r='2' fill='red'/>
+                       transform={`translate(0, ${base})`}
+                       base={base}/>
 
         </svg>
 

@@ -13,11 +13,6 @@ td {
   vertical-align: top;
 }
 
-
-.node text {
-  font: 8px sans-serif;
-}
-
 .node tspan {
   font-size: 3px;
   fill-opacity: 0.8;
@@ -29,4 +24,8 @@ td {
 
 .node--leaf rect {
   fill-opacity: 0.6;
+}
+
+svg * {
+ vector-effect: non-scaling-stroke;
 }
