@@ -72,35 +72,29 @@
     },
 
     render() {
-      const width = this.props.width;
-      const height = this.props.height;
       const colorScale = this.props.color;
       const d = this.props.d
-      const direction = this.props.direction;
       const xScale = this.props.xScale;
       const yScale = this.props.yScale;
 
-      const x0Scaled = yScale(d.y0);
-      const x1Scaled = yScale(d.y1);
-      const y0Scaled = xScale(d.x0);
-      const y1Scaled = xScale(d.x1);
+      const y0Scaled = yScale(d.y0);
+      const y1Scaled = yScale(d.y1);
+      const x0Scaled = xScale(d.x0);
+      const x1Scaled = xScale(d.x1);
 
-      const w = y1Scaled - y0Scaled;
-      const h = x1Scaled - x0Scaled;
+      const x = x0Scaled;
+      const y = y0Scaled;
+      const w = Math.abs(x1Scaled - x0Scaled);
+      const h = Math.abs(y1Scaled - y0Scaled);
 
-      var color = colorScale(d.id)
+      const translation = `translate(${ x }, ${ y })`;
 
-      var translation = "";
+      const color = colorScale(d.id)
 
-      if (direction == "neg") {
-        translation = `translate(${ y0Scaled },${ x0Scaled })`;
-      } else if (direction == "pos") {
-        translation = `translate(${y0Scaled}, ${height - x0Scaled} )`;
-      }
       return (
         <g className="node" transform={translation}>
           <rect id={`rect-${d.id}`}
-                width={w} height={h} y={1} fill={color}
+                width={w} height={h} fill={color}
                 onClick={this.onClick}/>
 
           <clipPath id={"clip-" + d.id}>
@@ -124,37 +118,28 @@
   var D3Partition = React.createClass({
     render() {
       const tree = this.props.tree
+      const transform = this.props.transform;
 
       var color = scaleOrdinal(this.props.colors);
 
       var xScale, yScale;
 
-      if (this.props.focused) {
-        const xPad = 0; (100 - this.props.focused.focusedX0) * 0.05;
-        xScale = scaleLinear()
-        .domain([this.props.focused.focusedX0 - xPad, this.props.focused.focusedX1])
-        .range([0, 100]);
-
-        const yPad = 0; (100 - this.props.focused.focusedY0) * 0.05;
-        yScale = scaleLinear()
-        .domain([this.props.focused.focusedY0 - yPad, 100])
-        .range([0, 100]);
-
-      }
-      else {
+      if (this.props.direction == "neg") {
         xScale = scaleLinear().domain([0, 100]).range([0, 100]);
         yScale = scaleLinear().domain([0, 100]).range([0, 100]);
+      } else if (this.props.direction == "pos") {
+        xScale = scaleLinear().domain([0, 100]).range([0, 100]);
+        yScale = scaleLinear().domain([0, 100]).range([0, 100])
       }
 
       partition().size([100, 100])(tree, this.props.totalThroughput);
 
       return (
-        <g className="node" transform={`translate(0, 0)`}>
-          {tree.descendants().map((d) => <D3Partitionlet d={d} direction={this.props.direction}
-                                                         color={color} width={100} height={100}
+        <g className="node" transform={transform}>
+          {tree.descendants().map((d) => <D3Partitionlet d={d}
+                                                         color={color}
                                                          onClick={this.props.onClick}
-                                                         xScale={xScale}
-                                                         yScale={yScale}/> )}
+                                                         xScale={xScale} yScale={yScale}/> )}
         </g>
       );
     }
