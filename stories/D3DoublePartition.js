@@ -64,18 +64,18 @@ const makePositiveOrNegativeTransactedTags = (transactions, tags, inOrOut, appen
   var transactedTags = makeTransactedTags(filteredTransactions, filteredTags);
 
   if (true){
-   transactedTags.push({
-     "direction": inOrOut,
-     "id": `${inOrOut}come.uncategorized`,
-     "transactions": filteredTransactions.filter((transaction) => {
-       return tags.filter((tag) => {
-         if (tag.pattern && tag.direction == inOrOut) {
-           return RegExp(tag.pattern).test(transaction.NAME);
-         }
-         return false
-       }).length == 0
-     })
-   });
+    transactedTags.push({
+      "direction": inOrOut,
+      "id": `${inOrOut}come.uncategorized`,
+      "transactions": filteredTransactions.filter((transaction) => {
+        return tags.filter((tag) => {
+          if (tag.pattern && tag.direction == inOrOut) {
+            return RegExp(tag.pattern).test(transaction.NAME);
+          }
+          return false
+        }).length == 0
+      })
+    });
   }
 
   return transactedTags;
@@ -96,19 +96,50 @@ const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, n
   .reduce((memo, e) => memo.concat(e), [])
 }
 
+const recursivelyBuildTaggedTransactions = (root, key) => {
+  console.log("root, key: ", root, key)
+  if (key){
+    var pointer = root;
+
+    key.split('.').forEach( (k, kndx) => {
+      console.log("k, kndx: ", k, kndx)
+
+      if (kndx != 0){
+        pointer = pointer.children.filter((pc) => {
+          console.log("pc: ", pc, pc.id.split('.')[kndx])
+          return pc.id.split('.')[kndx] == k
+        })[0]
+
+      } else {
+        console.log("skip first index!")
+      }
+
+      console.log("pointer: ", pointer)
+    })
+
+    return recursivelyBuildTaggedTransactions(pointer)
+
+  } else {
+    return (root.children || []).map((child) => recursivelyBuildTaggedTransactions(child))
+    .concat((root.data || false).transactions || [])
+    .reduce(function(a, b) {
+      return a.concat(b);
+    }, [])
+  }
+}
+
 var D3DoublePartition = React.createClass({
   getInitialState() {
     return {
-     focused: null,
-     focusedX0: null,
-     focusedX1: null,
-     focusedY0: null,
-     focusedY1: null
-   }
+      focused: null,
+      focusedX0: null,
+      focusedX1: null,
+      focusedY0: null,
+      focusedY1: null
+    }
   },
 
   setFocus(data){
-    console.log(data)
     this.setState({
       focused: data.id,
       focusedX0: data.x0,
@@ -119,19 +150,19 @@ var D3DoublePartition = React.createClass({
   },
 
   goBack(){
-   this.setState({
-    focused: null,
-    focusedX0: null,
-    focusedX1: null,
-    focusedY0: null,
-    focusedY1: null
-  })
+    this.setState({
+      focused: null,
+      focusedX0: null,
+      focusedX1: null,
+      focusedY0: null,
+      focusedY1: null
+    })
   },
 
   render() {
     const tags = this.props.tags;
     const transactions = this.props.transactions;
-    const focused = this.props.focused;
+    const focused = this.state;
 
     const positiveTransactedTags = makePositiveTransactedTags(transactions, tags, focused == null);
     const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
@@ -139,58 +170,112 @@ var D3DoublePartition = React.createClass({
     const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags, focused == null)
     const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
 
-    const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, negativeTransactedTags);
+    // const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, negativeTransactedTags);
+    var taggedTransactions;
+
+    if (this.state.focused == null){
+      taggedTransactions = recursivelyBuildTaggedTransactions(posRoot)
+      .concat(recursivelyBuildTaggedTransactions(negRoot));
+    } else {
+      if (this.state.focused.split('.')[0] == "outcome"){
+        taggedTransactions = recursivelyBuildTaggedTransactions(negRoot, this.state.focused);
+      } else if (this.state.focused.split('.')[0] == "income"){
+        taggedTransactions = recursivelyBuildTaggedTransactions(posRoot, this.state.focused);
+      }else {
+        debugger
+      }
+    }
+
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
-    const base = 100;
+    const base = 600;
+    const viewWidth = base;
+    const viewHeight = base;
+    const halfViewHeight = viewHeight / 2;
+
+    var svgComponent;
+
+    if (this.state.focused == null){
+      svgComponent = (
+        <g> <D3Partition direction="pos"
+          tree={posRoot}
+          totalThroughput={ttlthrpt}
+          colors={schemeCategory20c}
+          onClick={this.setFocus}
+          focused={focused}
+          transform={`translate(0, 0)`}
+          width={viewWidth}
+          height={halfViewHeight} />,
+
+        <D3Partition direction="neg"
+          tree={negRoot}
+          totalThroughput={ttlthrpt}
+          colors={schemeCategory20b}
+          onClick={this.setFocus}
+          focused={focused}
+          transform={`translate(0, ${halfViewHeight})`}
+          width={viewWidth}
+          height={halfViewHeight} />,
+
+        <line x1="0" y1={halfViewHeight} x2={viewWidth} y2={halfViewHeight} stroke="red" strokeWidth="3" ></line>
+
+     </g>
+      )
+    } else {
+      if (this.state.focused.split('.')[0] == "outcome"){
+        svgComponent = (<D3Partition direction="neg"
+          tree={negRoot}
+          totalThroughput={ttlthrpt}
+          colors={schemeCategory20b}
+          onClick={this.setFocus}
+          focused={focused}
+          transform={`translate(0, 0)`}
+          width={viewWidth}
+          height={halfViewHeight}/>)
+      } else if (this.state.focused.split('.')[0] == "income"){
+        svgComponent = (<D3Partition direction="pos"
+          tree={posRoot}
+          totalThroughput={ttlthrpt}
+          colors={schemeCategory20c}
+          onClick={this.setFocus}
+          focused={focused}
+          transform={`translate(0, 0)`}
+          width={viewWidth}
+          height={halfViewHeight}/>)
+      }else {
+        debugger
+      }
+    }
+
 
     return (
-     <div>
-       <div className="left" >
-        <table >
-          <tbody>
-            {taggedTransactions.map((t, ndx) => {
-              return (
-                <tr key={`tgdtrnsctn-${ndx}`}>
-                  <td>{t.FITID}</td>
-                  <td>{t.TRNAMT}</td>
-                  <td>{t.NAME}</td>
-                  <td>{t.tags.map((t) => t.id)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <div>
+        <div className="left" >
+         <button onClick={this.goBack} > clear state </button>
+          <table >
+            <tbody>
+              {taggedTransactions.map((t, ndx) => {
+                return (
+                  <tr key={`tgdtrnsctn-${ndx}`}>
+                    <td>{t.FITID}</td>
+                    <td>{t.TRNAMT}</td>
+                    <td>{t.NAME}</td>
 
-      <div className="right" >
-        <svg viewBox={`0 0 ${base} ${2 * base}`} preserveAspectRatio="xMinYMin meet" >
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className="right" >
+          <svg viewBox={`0 0 ${viewWidth} ${viewHeight}`} width={`${viewWidth}px`} height={`${viewHeight}px`}  >
+            {svgComponent}
+          </svg>
+        </div>
 
-          <D3Partition direction="pos"
-                       tree={posRoot}
-                       totalThroughput={ttlthrpt}
-                       colors={schemeCategory20c}
-                       onClick={this.props.setFocus}
-                       focused={focused}
-                       transform={`translate(0, 0)`}
-                       base={base}/>
+      </div>);
 
-          <D3Partition direction="neg"
-                       tree={negRoot}
-                       totalThroughput={ttlthrpt}
-                       colors={schemeCategory20b}
-                       onClick={this.props.setFocus}
-                       focused={focused}
-                       transform={`translate(0, ${base})`}
-                       base={base}/>
+    }
+  });
 
-        </svg>
-
-      </div>
-
-    </div>);
-
-  }
-});
-
-export default D3DoublePartition;
+  export default D3DoublePartition;

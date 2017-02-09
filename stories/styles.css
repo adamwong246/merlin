@@ -13,14 +13,14 @@ td {
   vertical-align: top;
 }
 
-.node tspan {
+/*.node tspan {
   font-size: 3px;
   fill-opacity: 0.8;
 }
 
 .node--internal text {
   font-weight: bold;
-}
+}*/
 
 .node--leaf rect {
   fill-opacity: 0.6;
@@ -28,4 +28,8 @@ td {
 
 svg * {
  vector-effect: non-scaling-stroke;
+}
+
+.right svg {
+ position: fixed;
 }
