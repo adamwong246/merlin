@@ -97,24 +97,18 @@ const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, n
 }
 
 const recursivelyBuildTaggedTransactions = (root, key) => {
-  console.log("root, key: ", root, key)
   if (key){
     var pointer = root;
 
     key.split('.').forEach( (k, kndx) => {
-      console.log("k, kndx: ", k, kndx)
-
       if (kndx != 0){
         pointer = pointer.children.filter((pc) => {
-          console.log("pc: ", pc, pc.id.split('.')[kndx])
           return pc.id.split('.')[kndx] == k
         })[0]
 
       } else {
         console.log("skip first index!")
       }
-
-      console.log("pointer: ", pointer)
     })
 
     return recursivelyBuildTaggedTransactions(pointer)
@@ -188,7 +182,7 @@ var D3DoublePartition = React.createClass({
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
-    const base = 600;
+    const base = 500;
     const viewWidth = base;
     const viewHeight = base;
     const halfViewHeight = viewHeight / 2;
@@ -197,7 +191,9 @@ var D3DoublePartition = React.createClass({
 
     if (this.state.focused == null){
       svgComponent = (
-        <g> <D3Partition direction="pos"
+        <g>
+
+         <D3Partition direction="pos"
           tree={posRoot}
           totalThroughput={ttlthrpt}
           colors={schemeCategory20c}
@@ -223,30 +219,46 @@ var D3DoublePartition = React.createClass({
       )
     } else {
       if (this.state.focused.split('.')[0] == "outcome"){
-        svgComponent = (<D3Partition direction="neg"
-          tree={negRoot}
-          totalThroughput={ttlthrpt}
-          colors={schemeCategory20b}
-          onClick={this.setFocus}
-          focused={focused}
-          transform={`translate(0, 0)`}
-          width={viewWidth}
-          height={halfViewHeight}/>)
+        svgComponent = (
+         <g>
+           <D3Partition direction="neg"
+           tree={negRoot}
+           totalThroughput={ttlthrpt}
+           colors={schemeCategory20b}
+           onClick={this.setFocus}
+           focused={focused}
+           transform={`translate(0, 0)`}
+           width={viewWidth}
+           height={halfViewHeight}/>
+         </g>)
       } else if (this.state.focused.split('.')[0] == "income"){
-        svgComponent = (<D3Partition direction="pos"
-          tree={posRoot}
-          totalThroughput={ttlthrpt}
-          colors={schemeCategory20c}
-          onClick={this.setFocus}
-          focused={focused}
-          transform={`translate(0, 0)`}
-          width={viewWidth}
-          height={halfViewHeight}/>)
+        svgComponent = (
+         <g>
+           <D3Partition direction="pos"
+           tree={posRoot}
+           totalThroughput={ttlthrpt}
+           colors={schemeCategory20c}
+           onClick={this.setFocus}
+           focused={focused}
+           transform={`translate(0, 0)`}
+           width={viewWidth}
+           height={halfViewHeight}/>
+
+           <D3Partition direction="pos"
+           tree={posRoot}
+           totalThroughput={ttlthrpt}
+           colors={schemeCategory20c}
+           onClick={this.setFocus}
+           focused={focused}
+           transform={`translate(0, 0)`}
+           width={viewWidth}
+           height={halfViewHeight}/>
+
+         </g>)
       }else {
         debugger
       }
     }
-
 
     return (
       <div>

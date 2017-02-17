@@ -97,31 +97,44 @@
       const xScale = this.props.xScale;
       const yScale = this.props.yScale;
 
+      const range = yScale.range()
+      const domain = yScale.domain()
+
       const y0Scaled = yScale(d.y0);
       const y1Scaled = yScale(d.y1);
       const x0Scaled = xScale(d.x0);
       const x1Scaled = xScale(d.x1);
 
       const w = x1Scaled - x0Scaled;
+      // const h = y1Scaled - y0Scaled;
       const h = Math.abs(y1Scaled - y0Scaled);
-      const x = Math.min(x0Scaled, x1Scaled);
 
+      const x = x0Scaled;
+      // const x = Math.min(x0Scaled, x1Scaled);
+
+      // const y = y0Scaled;
       // const y = Math.min(y0Scaled, y1Scaled);
       var y;
-      const range = yScale.range()
-
       if (range[0] < range[1]){
         y = y0Scaled;
       } else {
-        y = y0Scaled + h;
+        // console.log("d", d);
+        // console.log("range", range);
+        // console.log("y0Scaled", y0Scaled);
+        // console.log("y1Scaled", y1Scaled);
+        y = y0Scaled - h;
       }
 
+
+
       // const color = colorScale(d.id)
-      var color;
+      var fillColor, textColor;
       if (range[0] < range[1]){
-        color = shadeColor(colorScale(d.id), -30);
+        fillColor = shadeColor(colorScale(d.id), -30);
+        textColor = shadeColor(colorScale(d.id), 30);
       } else {
-        color = shadeColor(colorScale(d.id), 30);
+        fillColor = shadeColor(colorScale(d.id), 30);
+        textColor = shadeColor(colorScale(d.id), -30);
       }
 
       const translation = `translate(${ x }, ${ y })`;
@@ -129,19 +142,19 @@
       return (
         <g className="node" transform={translation}>
           <rect id={`rect-${d.id}`}
-                width={w} height={h} fill={color}
+                width={w} height={h} fill={fillColor}
                 onClick={this.onClick}/>
 
           <clipPath id={"clip-" + d.id}>
             <use xlinkHref={`#rect-${d.id}`}/>
           </clipPath>
 
-          <text clipPath={`url(#clip-${d.id})`} x="2">
+          <text clipPath={`url(#clip-${d.id})`} x="2" fill={textColor}>
             <tspan y="16">{d.data.NAME || d.id.substring(d.id.lastIndexOf(".") + 1)}
             </tspan>
           </text>
 
-          <text clipPath={`url(#clip-${d.id})`} x="2">
+          <text clipPath={`url(#clip-${d.id})`} x="2" fill={textColor}>
             <tspan y="36">{Math.round(d.value)}</tspan>
           </text>
 
@@ -166,7 +179,12 @@
       // set the domains of the scales
       if (focused.focused) {
         xScale.domain([focused.focusedX0, focused.focusedX1])
-        yScale.domain([focused.focusedY0 * 0.7, focused.focusedY1]);
+        // yScale.domain([focused.focusedY0 * 0.8, 100]);
+        if (this.props.direction == "neg") {
+          yScale.domain([focused.focusedY0 * 0.8, 100]);
+        } else if (this.props.direction == "pos") {
+          yScale.domain([focused.focusedY1 * -0.8, 100]);
+        }
       } else {
        xScale.domain([0, 100 ]);
        yScale.domain([0, 100 ]);
@@ -176,16 +194,16 @@
       xScale.range([0, width]);
 
       if (this.props.direction == "neg") {
-        yScale.range([0, 100]);
+        yScale.range([0, height]);
       } else if (this.props.direction == "pos") {
-        // yScale.range([0, 100]);
-        yScale.range([100, 0]);
+        yScale.range([height, 0]);
       }
 
-      partition().size([width, height])(tree, this.props.totalThroughput);
+      partition().size([100, 100])(tree, this.props.totalThroughput);
 
       return (
         <g className="node" transform={transform}>
+
           {tree.descendants().map((d) => <D3Partitionlet d={d}
                                                          color={color}
                                                          onClick={this.props.onClick}
