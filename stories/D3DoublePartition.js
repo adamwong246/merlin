@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import {hierarchy, stratify, treemapDice, roundNode} from 'd3-hierarchy';
-import {scaleOrdinal, schemeCategory20b, schemeCategory20c} from 'd3-scale';
+import {scaleOrdinal, scaleLinear, schemeCategory20b, schemeCategory20c} from 'd3-scale';
 
 import D3Partition from './D3Partition'
 
@@ -42,6 +42,7 @@ const makeTreeOfTransactedTags = (tags, direction) => {
   .sum((d) => d.value).sort((a, b) => b.height - a.height || b.value - a.value);
 }
 
+// returns a list of tags with the matching transactions as members
 const makeTransactedTags = (transactions, tags) => {
   return tags.map((tag) => {
     return {
@@ -134,13 +135,25 @@ var D3DoublePartition = React.createClass({
   },
 
   setFocus(data){
-    this.setState({
-      focused: data.id,
-      focusedX0: data.x0,
-      focusedX1: data.x1,
-      focusedY0: data.y0,
-      focusedY1: data.y1
-    })
+    const focused = this.state.focused;
+
+    if (focused != null && data.id.split('.')[0] != focused.split('.')[0]){
+      this.setState({
+        focused: null,
+        focusedX0: null,
+        focusedX1: null,
+        focusedY0: null,
+        focusedY1: null
+      })
+    } else {
+      this.setState({
+        focused: data.id,
+        focusedX0: data.x0,
+        focusedX1: data.x1,
+        focusedY0: data.y0,
+        focusedY1: data.y1
+      })
+    }
   },
 
   goBack(){
@@ -156,7 +169,7 @@ var D3DoublePartition = React.createClass({
   render() {
     const tags = this.props.tags;
     const transactions = this.props.transactions;
-    const focused = this.state;
+    const focused = this.state.focused;
 
     const positiveTransactedTags = makePositiveTransactedTags(transactions, tags, focused == null);
     const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
@@ -164,17 +177,16 @@ var D3DoublePartition = React.createClass({
     const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags, focused == null)
     const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
 
-    // const taggedTransactions = makeTaggedTransactionsOfPositiveAndNegativeTransactedTags(positiveTransactedTags, negativeTransactedTags);
     var taggedTransactions;
 
-    if (this.state.focused == null){
+    if (focused == null){
       taggedTransactions = recursivelyBuildTaggedTransactions(posRoot)
       .concat(recursivelyBuildTaggedTransactions(negRoot));
     } else {
-      if (this.state.focused.split('.')[0] == "outcome"){
-        taggedTransactions = recursivelyBuildTaggedTransactions(negRoot, this.state.focused);
-      } else if (this.state.focused.split('.')[0] == "income"){
-        taggedTransactions = recursivelyBuildTaggedTransactions(posRoot, this.state.focused);
+      if (focused.split('.')[0] == "outcome"){
+        taggedTransactions = recursivelyBuildTaggedTransactions(negRoot, focused);
+      } else if (focused.split('.')[0] == "income"){
+        taggedTransactions = recursivelyBuildTaggedTransactions(posRoot, focused);
       }else {
         debugger
       }
@@ -182,79 +194,38 @@ var D3DoublePartition = React.createClass({
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
-    const base = 500;
+    const base = 400;
     const viewWidth = base;
     const viewHeight = base;
     const halfViewHeight = viewHeight / 2;
 
-    var svgComponent;
+    var xScale, yScalePos, yScaleNeg;
 
-    if (this.state.focused == null){
-      svgComponent = (
-        <g>
-
-         <D3Partition direction="pos"
-          tree={posRoot}
-          totalThroughput={ttlthrpt}
-          colors={schemeCategory20c}
-          onClick={this.setFocus}
-          focused={focused}
-          transform={`translate(0, 0)`}
-          width={viewWidth}
-          height={halfViewHeight} />,
-
-        <D3Partition direction="neg"
-          tree={negRoot}
-          totalThroughput={ttlthrpt}
-          colors={schemeCategory20b}
-          onClick={this.setFocus}
-          focused={focused}
-          transform={`translate(0, ${halfViewHeight})`}
-          width={viewWidth}
-          height={halfViewHeight} />,
-
-        <line x1="0" y1={halfViewHeight} x2={viewWidth} y2={halfViewHeight} stroke="red" strokeWidth="3" ></line>
-
-     </g>
-      )
+    if (focused == undefined){
+      xScale = scaleLinear().domain([0, 100 ]).range([0, viewWidth]);
+      yScalePos = scaleLinear().domain([0, 100 ]).range([halfViewHeight, 0]);
+      yScaleNeg = scaleLinear().domain([0, 100 ]).range([0, halfViewHeight]);
     } else {
-      if (this.state.focused.split('.')[0] == "outcome"){
-        svgComponent = (
-         <g>
-           <D3Partition direction="neg"
-           tree={negRoot}
-           totalThroughput={ttlthrpt}
-           colors={schemeCategory20b}
-           onClick={this.setFocus}
-           focused={focused}
-           transform={`translate(0, 0)`}
-           width={viewWidth}
-           height={halfViewHeight}/>
-         </g>)
-      } else if (this.state.focused.split('.')[0] == "income"){
-        svgComponent = (
-         <g>
-           <D3Partition direction="pos"
-           tree={posRoot}
-           totalThroughput={ttlthrpt}
-           colors={schemeCategory20c}
-           onClick={this.setFocus}
-           focused={focused}
-           transform={`translate(0, 0)`}
-           width={viewWidth}
-           height={halfViewHeight}/>
+      xScale = scaleLinear().domain([this.state.focusedX0, this.state.focusedX1 ]).range([0, viewWidth]);
 
-           <D3Partition direction="pos"
-           tree={posRoot}
-           totalThroughput={ttlthrpt}
-           colors={schemeCategory20c}
-           onClick={this.setFocus}
-           focused={focused}
-           transform={`translate(0, 0)`}
-           width={viewWidth}
-           height={halfViewHeight}/>
+      if (focused.split('.')[0] == "income"){
+        yScalePos = scaleLinear()
+        .domain([this.state.focusedY0, 100 ])
+        .range([viewHeight, 0]);
 
-         </g>)
+        yScaleNeg = scaleLinear()
+        .domain([0, 100 ])
+        .range([viewHeight, viewHeight])
+
+      } else if (focused.split('.')[0] == "outcome"){
+        yScalePos = scaleLinear()
+        .domain([0, 100 ])
+        .range([0,0]);
+
+        yScaleNeg = scaleLinear()
+        .domain([this.state.focusedY0, 100 ])
+        .range([-halfViewHeight, halfViewHeight]);
+
       }else {
         debugger
       }
@@ -264,6 +235,7 @@ var D3DoublePartition = React.createClass({
       <div>
         <div className="left" >
          <button onClick={this.goBack} > clear state </button>
+         <p>{JSON.stringify(this.state)}</p>
           <table >
             <tbody>
               {taggedTransactions.map((t, ndx) => {
@@ -272,7 +244,6 @@ var D3DoublePartition = React.createClass({
                     <td>{t.FITID}</td>
                     <td>{t.TRNAMT}</td>
                     <td>{t.NAME}</td>
-
                   </tr>
                 );
               })}
@@ -280,14 +251,36 @@ var D3DoublePartition = React.createClass({
           </table>
         </div>
         <div className="right" >
-          <svg viewBox={`0 0 ${viewWidth} ${viewHeight}`} width={`${viewWidth}px`} height={`${viewHeight}px`}  >
-            {svgComponent}
+          <svg width={`${viewWidth}px`} height={`${viewHeight}px`}>
+
+             <D3Partition
+              tree={posRoot}
+              totalThroughput={ttlthrpt}
+              colors={schemeCategory20c}
+              onClick={this.setFocus}
+              state={this.state}
+              transform={`translate(0, 0)`}
+              xScale={xScale}
+              yScale={yScalePos} />,
+
+            <D3Partition
+              tree={negRoot}
+              totalThroughput={ttlthrpt}
+              colors={schemeCategory20b}
+              onClick={this.setFocus}
+              state={this.state}
+              transform={`translate(0, ${halfViewHeight})`}
+              xScale={xScale}
+              yScale={yScaleNeg } />,
+
+            <line x1="0" y1={0} x2={viewWidth} y2={0} stroke="red" strokeWidth="3" ></line>
+            <line x1="0" y1={halfViewHeight} x2={viewWidth} y2={halfViewHeight} stroke="red" strokeWidth="3" ></line>
+            <line x1="0" y1={viewHeight} x2={viewWidth} y2={viewHeight} stroke="red" strokeWidth="3" ></line>
+
           </svg>
         </div>
-
       </div>);
-
     }
   });
 
-  export default D3DoublePartition;
+export default D3DoublePartition;

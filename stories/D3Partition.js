@@ -98,7 +98,6 @@
       const yScale = this.props.yScale;
 
       const range = yScale.range()
-      const domain = yScale.domain()
 
       const y0Scaled = yScale(d.y0);
       const y1Scaled = yScale(d.y1);
@@ -106,28 +105,16 @@
       const x1Scaled = xScale(d.x1);
 
       const w = x1Scaled - x0Scaled;
-      // const h = y1Scaled - y0Scaled;
       const h = Math.abs(y1Scaled - y0Scaled);
-
       const x = x0Scaled;
-      // const x = Math.min(x0Scaled, x1Scaled);
 
-      // const y = y0Scaled;
-      // const y = Math.min(y0Scaled, y1Scaled);
       var y;
       if (range[0] < range[1]){
         y = y0Scaled;
       } else {
-        // console.log("d", d);
-        // console.log("range", range);
-        // console.log("y0Scaled", y0Scaled);
-        // console.log("y1Scaled", y1Scaled);
         y = y0Scaled - h;
       }
 
-
-
-      // const color = colorScale(d.id)
       var fillColor, textColor;
       if (range[0] < range[1]){
         fillColor = shadeColor(colorScale(d.id), -30);
@@ -154,7 +141,7 @@
             </tspan>
           </text>
 
-          <text clipPath={`url(#clip-${d.id})`} x="2" fill={textColor}>
+          <text clipPath={`url(#clip-${d.id})`} x="2" fill={textColor} text-anchor="middle">
             <tspan y="36">{Math.round(d.value)}</tspan>
           </text>
 
@@ -167,37 +154,9 @@
     render() {
       const tree = this.props.tree
       const transform = this.props.transform;
-      const focused = this.props.focused;
-      const width = this.props.width;
-      const height = this.props.height;
+      const focused = this.props.state;
 
       var color = scaleOrdinal(this.props.colors);
-
-      var xScale = scaleLinear();
-      var yScale = scaleLinear();
-
-      // set the domains of the scales
-      if (focused.focused) {
-        xScale.domain([focused.focusedX0, focused.focusedX1])
-        // yScale.domain([focused.focusedY0 * 0.8, 100]);
-        if (this.props.direction == "neg") {
-          yScale.domain([focused.focusedY0 * 0.8, 100]);
-        } else if (this.props.direction == "pos") {
-          yScale.domain([focused.focusedY1 * -0.8, 100]);
-        }
-      } else {
-       xScale.domain([0, 100 ]);
-       yScale.domain([0, 100 ]);
-      }
-
-      // set the ranges of the scales
-      xScale.range([0, width]);
-
-      if (this.props.direction == "neg") {
-        yScale.range([0, height]);
-      } else if (this.props.direction == "pos") {
-        yScale.range([height, 0]);
-      }
 
       partition().size([100, 100])(tree, this.props.totalThroughput);
 
@@ -207,7 +166,7 @@
           {tree.descendants().map((d) => <D3Partitionlet d={d}
                                                          color={color}
                                                          onClick={this.props.onClick}
-                                                         xScale={xScale} yScale={yScale}/> )}
+                                                         xScale={this.props.xScale} yScale={this.props.yScale}/> )}
         </g>
       );
     }
