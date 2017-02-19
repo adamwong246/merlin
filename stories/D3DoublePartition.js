@@ -130,20 +130,23 @@ var D3DoublePartition = React.createClass({
       focusedX0: null,
       focusedX1: null,
       focusedY0: null,
-      focusedY1: null
+      focusedY1: null,
+      focusedHeight: null,
+      focusedDepth: null
     }
   },
 
   setFocus(data){
     const focused = this.state.focused;
-
     if (focused != null && data.id.split('.')[0] != focused.split('.')[0]){
       this.setState({
         focused: null,
         focusedX0: null,
         focusedX1: null,
         focusedY0: null,
-        focusedY1: null
+        focusedY1: null,
+        focusedHeight: null,
+        focusedDepth: null
       })
     } else {
       this.setState({
@@ -151,7 +154,9 @@ var D3DoublePartition = React.createClass({
         focusedX0: data.x0,
         focusedX1: data.x1,
         focusedY0: data.y0,
-        focusedY1: data.y1
+        focusedY1: data.y1,
+        focusedHeight: data.height,
+        focusedDepth: data.depth
       })
     }
   },
@@ -162,7 +167,9 @@ var D3DoublePartition = React.createClass({
       focusedX0: null,
       focusedX1: null,
       focusedY0: null,
-      focusedY1: null
+      focusedY1: null,
+      focusedHeight: null,
+      focusedDepth: null
     })
   },
 
@@ -194,7 +201,7 @@ var D3DoublePartition = React.createClass({
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
-    const base = 400;
+    const base = 350;
     const viewWidth = base;
     const viewHeight = base;
     const halfViewHeight = viewHeight / 2;
@@ -210,32 +217,48 @@ var D3DoublePartition = React.createClass({
 
       if (focused.split('.')[0] == "income"){
         yScalePos = scaleLinear()
-        .domain([this.state.focusedY0, 100 ])
-        .range([viewHeight, 0]);
+        .domain([
+          (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
+          (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
+        ])
+        .range([viewHeight*0.9, 0]);
 
         yScaleNeg = scaleLinear()
-        .domain([0, 100 ])
-        .range([viewHeight, viewHeight])
+        .domain([
+          (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0),
+          (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0)
+        ])
+        .range([viewHeight*0.9, viewHeight]);
 
       } else if (focused.split('.')[0] == "outcome"){
         yScalePos = scaleLinear()
-        .domain([0, 100 ])
-        .range([0,0]);
+        .domain([
+          (this.state.focusedY1 - this.state.focusedY0),
+          2 * (this.state.focusedY1 - this.state.focusedY0)
+        ])
+        .range([viewHeight * 0.1, 0]);
+        // .range([halfViewHeight * -0.8, viewHeight ]);
+        // .range([0, 0])
 
         yScaleNeg = scaleLinear()
-        .domain([this.state.focusedY0, 100 ])
-        .range([-halfViewHeight, halfViewHeight]);
+        .domain([
+          (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
+          (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
+        ])
+        .range([halfViewHeight * -0.9 , halfViewHeight]);
 
       }else {
         debugger
       }
     }
 
+    console.log(yScaleNeg.domain());
+
     return (
       <div>
         <div className="left" >
          <button onClick={this.goBack} > clear state </button>
-         <p>{JSON.stringify(this.state)}</p>
+         <p>{JSON.stringify(this.state, null, 2)}</p>
           <table >
             <tbody>
               {taggedTransactions.map((t, ndx) => {
@@ -253,16 +276,6 @@ var D3DoublePartition = React.createClass({
         <div className="right" >
           <svg width={`${viewWidth}px`} height={`${viewHeight}px`}>
 
-             <D3Partition
-              tree={posRoot}
-              totalThroughput={ttlthrpt}
-              colors={schemeCategory20c}
-              onClick={this.setFocus}
-              state={this.state}
-              transform={`translate(0, 0)`}
-              xScale={xScale}
-              yScale={yScalePos} />,
-
             <D3Partition
               tree={negRoot}
               totalThroughput={ttlthrpt}
@@ -271,11 +284,23 @@ var D3DoublePartition = React.createClass({
               state={this.state}
               transform={`translate(0, ${halfViewHeight})`}
               xScale={xScale}
-              yScale={yScaleNeg } />,
+              yScale={yScaleNeg } />
+
+              <D3Partition
+               tree={posRoot}
+               totalThroughput={ttlthrpt}
+               colors={schemeCategory20c}
+               onClick={this.setFocus}
+               state={this.state}
+               transform={`translate(0, 0)`}
+               xScale={xScale}
+               yScale={yScalePos} />
 
             <line x1="0" y1={0} x2={viewWidth} y2={0} stroke="red" strokeWidth="3" ></line>
             <line x1="0" y1={halfViewHeight} x2={viewWidth} y2={halfViewHeight} stroke="red" strokeWidth="3" ></line>
             <line x1="0" y1={viewHeight} x2={viewWidth} y2={viewHeight} stroke="red" strokeWidth="3" ></line>
+            <line x1="0" y1={0} x2={0} y2={viewHeight} stroke="red" strokeWidth="3" ></line>
+            <line x1={viewWidth} y1={0} x2={viewWidth} y2={viewHeight} stroke="red" strokeWidth="3" ></line>
 
           </svg>
         </div>

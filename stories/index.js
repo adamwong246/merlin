@@ -1,5 +1,5 @@
 import React from 'react';
-import { storiesOf, action, linkTo } from '@kadira/storybook';
+import { storiesOf, linkTo } from '@kadira/storybook';
 
 import ModalSwitcher from './ModalSwitcher.js'
 import ModalArea from './ModalArea.js'

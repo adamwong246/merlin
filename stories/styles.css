@@ -13,14 +13,9 @@ td {
   vertical-align: top;
 }
 
-/*.node tspan {
-  font-size: 3px;
-  fill-opacity: 0.8;
+.node tspan {
+  font-size: 14px;
 }
-
-.node--internal text {
-  font-weight: bold;
-}*/
 
 .node--leaf rect {
   fill-opacity: 0.6;

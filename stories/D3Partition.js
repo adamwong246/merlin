@@ -130,20 +130,24 @@
         <g className="node" transform={translation}>
           <rect id={`rect-${d.id}`}
                 width={w} height={h} fill={fillColor}
-                onClick={this.onClick}/>
+                onClick={this.onClick}
+                strokeWidth="1"
+                stroke={textColor}/>
+
+                <text clipPath={`url(#clip-${d.id})`} x="2" fill={textColor}>
+                  <tspan y="16">{d.data.NAME || d.id.substring(d.id.lastIndexOf(".") + 1)}
+                  </tspan>
+                </text>
+
+                <text clipPath={`url(#clip-${d.id})`} x="2" fill={textColor} >
+                  <tspan y="36">{`${Math.round(d.value)}`}</tspan>
+                </text>
 
           <clipPath id={"clip-" + d.id}>
             <use xlinkHref={`#rect-${d.id}`}/>
           </clipPath>
 
-          <text clipPath={`url(#clip-${d.id})`} x="2" fill={textColor}>
-            <tspan y="16">{d.data.NAME || d.id.substring(d.id.lastIndexOf(".") + 1)}
-            </tspan>
-          </text>
 
-          <text clipPath={`url(#clip-${d.id})`} x="2" fill={textColor} text-anchor="middle">
-            <tspan y="36">{Math.round(d.value)}</tspan>
-          </text>
 
         </g>
       );
