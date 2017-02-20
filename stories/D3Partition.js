@@ -165,7 +165,7 @@
       partition().size([100, 100])(tree, this.props.totalThroughput);
 
       return (
-        <g className="node" transform={transform}>
+        <g className="node" >
 
           {tree.descendants().map((d) => <D3Partitionlet d={d}
                                                          color={color}

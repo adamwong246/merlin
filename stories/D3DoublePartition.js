@@ -201,7 +201,7 @@ var D3DoublePartition = React.createClass({
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
-    const base = 350;
+    const base = 500;
     const viewWidth = base;
     const viewHeight = base;
     const halfViewHeight = viewHeight / 2;
@@ -211,7 +211,7 @@ var D3DoublePartition = React.createClass({
     if (focused == undefined){
       xScale = scaleLinear().domain([0, 100 ]).range([0, viewWidth]);
       yScalePos = scaleLinear().domain([0, 100 ]).range([halfViewHeight, 0]);
-      yScaleNeg = scaleLinear().domain([0, 100 ]).range([0, halfViewHeight]);
+      yScaleNeg = scaleLinear().domain([0, 100 ]).range([halfViewHeight, viewHeight]);
     } else {
       xScale = scaleLinear().domain([this.state.focusedX0, this.state.focusedX1 ]).range([0, viewWidth]);
 
@@ -221,38 +221,36 @@ var D3DoublePartition = React.createClass({
           (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
           (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
         ])
-        .range([viewHeight*0.9, 0]);
-
-        yScaleNeg = scaleLinear()
-        .domain([
-          (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0),
-          (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0)
-        ])
-        .range([viewHeight*0.9, viewHeight]);
-
-      } else if (focused.split('.')[0] == "outcome"){
-        yScalePos = scaleLinear()
-        .domain([
-          (this.state.focusedY1 - this.state.focusedY0),
-          2 * (this.state.focusedY1 - this.state.focusedY0)
-        ])
-        .range([viewHeight * 0.1, 0]);
-        // .range([halfViewHeight * -0.8, viewHeight ]);
-        // .range([0, 0])
+        .range([viewHeight, 0]);
 
         yScaleNeg = scaleLinear()
         .domain([
           (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
           (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
         ])
-        .range([halfViewHeight * -0.9 , halfViewHeight]);
+        // .range([viewHeight*0.9, viewHeight*1.9]);
+        .range([0, 0])
+
+      } else if (focused.split('.')[0] == "outcome"){
+        yScalePos = scaleLinear()
+        .domain([
+          (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
+          (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
+        ])
+        // .range([viewHeight * 0.1 , viewHeight * -1.1]);
+        .range([0, 0])
+
+        yScaleNeg = scaleLinear()
+        .domain([
+          (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
+          (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
+        ])
+        .range([0 , viewHeight]);
 
       }else {
         debugger
       }
     }
-
-    console.log(yScaleNeg.domain());
 
     return (
       <div>
@@ -282,7 +280,6 @@ var D3DoublePartition = React.createClass({
               colors={schemeCategory20b}
               onClick={this.setFocus}
               state={this.state}
-              transform={`translate(0, ${halfViewHeight})`}
               xScale={xScale}
               yScale={yScaleNeg } />
 
@@ -292,7 +289,6 @@ var D3DoublePartition = React.createClass({
                colors={schemeCategory20c}
                onClick={this.setFocus}
                state={this.state}
-               transform={`translate(0, 0)`}
                xScale={xScale}
                yScale={yScalePos} />
 
