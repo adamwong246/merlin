@@ -123,7 +123,7 @@ const recursivelyBuildTaggedTransactions = (root, key) => {
   }
 }
 
-var D3DoublePartition = React.createClass({
+var TableAndTree = React.createClass({
   getInitialState() {
     return {
       focused: null,
@@ -304,4 +304,4 @@ var D3DoublePartition = React.createClass({
     }
   });
 
-export default D3DoublePartition;
+export default TableAndTree;

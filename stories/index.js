@@ -12,7 +12,7 @@ import FlatSplitTrans from './FlatSplitTrans.js'
 import FlatSplitTags from './FlatSplitTags.js'
 import FoldSplitTags from './FoldSplitTags.js'
 import FoldSplitTrans from './FoldSplitTrans.js'
-import D3DoublePartition from './D3DoublePartition.js'
+import TableAndTree from './TableAndTree.js'
 
 import './styles.css'
 
@@ -33,6 +33,6 @@ storiesOf('Merlin', module)
   .add('FlatSplitTags', () => (<FlatSplitTags transactions={transactions} tags={tags} /> ))
   .add('FoldSplitTags', () => (<FoldSplitTags transactions={transactions} tags={tags} /> ))
   .add('FoldSplitTrans', () => (<FoldSplitTrans transactions={transactions} tags={tags} /> ))
-  .add('D3DoublePartition', () => (<D3DoublePartition transactions={transactions} tags={tags2} /> ));
+  .add('TableAndTree', () => (<TableAndTree transactions={transactions} tags={tags2} /> ));
 
 ;
