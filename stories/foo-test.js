@@ -29,7 +29,7 @@ const transactedFilters = [
   {pattern:"b", path:"alpha.beta", transactions:[{name:"b", amount:2}]} 
 ];
 
-const bujitTree = [
+const TableAndTreeTree = [
   {
     path:"alpha", 
     value: 3,

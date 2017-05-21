@@ -222,31 +222,25 @@ var TableAndTree = React.createClass({
           (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
         ])
         .range([viewHeight, 0]);
-
         yScaleNeg = scaleLinear()
         .domain([
           (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
           (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
         ])
-        // .range([viewHeight*0.9, viewHeight*1.9]);
-        .range([0, 0])
-
+        .range([viewHeight*0.9, viewHeight*1.9]);
       } else if (focused.split('.')[0] == "outcome"){
         yScalePos = scaleLinear()
         .domain([
           (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
           (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
         ])
-        // .range([viewHeight * 0.1 , viewHeight * -1.1]);
         .range([0, 0])
-
         yScaleNeg = scaleLinear()
         .domain([
           (this.state.focusedDepth) * (this.state.focusedY1 - this.state.focusedY0),
           (this.state.focusedDepth + this.state.focusedHeight + 1) * (this.state.focusedY1 - this.state.focusedY0)
         ])
         .range([0 , viewHeight]);
-
       }else {
         debugger
       }
@@ -265,6 +259,7 @@ var TableAndTree = React.createClass({
                     <td>{t.FITID}</td>
                     <td>{t.TRNAMT}</td>
                     <td>{t.NAME}</td>
+                    <td>{JSON.stringify(t, null, 2)}</td>
                   </tr>
                 );
               })}
