@@ -4,7 +4,7 @@ import React, { Component, PropTypes } from 'react'
 export default function materializedPathTagsToTree (tags) {
  var foldedTags = [];
  for (var i = 0; i < tags.length; i++) {
-     var chain = tags[i].path.split(",").slice(1);
+     var chain = tags[i].id.split(".") //.slice(1);
 
      var currentNode = foldedTags;
      for (var j = 0; j < chain.length; j++) {

@@ -30,9 +30,9 @@ var ModalSwitcher = React.createClass({
 
     return (
       <ul>
-      <li>{nounComp}</li>
-      <li>{floatOrFoldComp}</li>
-      <li>{splitOrUnifiedComp}</li>
+      <li>Model? {nounComp}</li>
+      <li>Flat list or folded outline? {floatOrFoldComp}</li>
+      <li>split income and outcome?{splitOrUnifiedComp}</li>
       </ul>
     );
   }

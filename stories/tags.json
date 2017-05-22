@@ -1,12 +1,23 @@
 [
- {"direction": "out", "path": ",utilities,water", "pattern": "h2o", "id": "5"},
- {"direction": "out", "path": ",utilities,internet", "pattern": "COMCAST COMCAST", "id": "1"},
- {"direction": "out", "path": ",utilities,transportation", "pattern": "LYFT", "id": "2"},
- {"direction": "out", "path": ",utilities,food,boring", "pattern": "SOYLENT", "id": "3"},
- {"direction": "out", "path": ",utilities,food,luxury", "pattern": "Shandong", "id": "4"},
- {"direction": "in", "path": ",income", "pattern": "TRINET", "id": "6"},
- {"direction": "in", "path": ",income", "pattern": "FROM Cash Transfer", "id": "7"},
- {"direction": "in", "path": ",income,chache", "pattern": "FROM Square Cash", "id": "8"},
- {"direction": "out", "path": ",utilities,food,luxury", "pattern": "GILHOOLIGAN", "id": "9"}
+  {"direction": "in", "id":  "income"},
+  {"direction": "in", "id":  "income.adam", "pattern": "TRINET"},
+  {"direction": "in", "id":  "income.vince"},
+  {"direction": "in", "id":  "income.smallRoom"},
+  {"direction": "in", "id":  "income.mediumRoom"},
+  {"direction": "in", "id":  "income.largeRood"},
+  {"direction": "in", "id":  "income.allowance"},
+
+  {"direction": "out", "id":  "outcome"},
+  {"direction": "out", "id":  "outcome.housing"},
+  {"direction": "out", "id":"outcome.housing.rent", "pattern": "YEAGER"},
+  {"direction": "out", "id":"outcome.housing.misc"},
+  {"direction": "out", "id":  "outcome.livingExpenses"},
+  {"direction": "out", "id":  "outcome.livingExpenses.utilities"},
+  {"direction": "out", "id":  "outcome.livingExpenses.utilities.water"},
+  {"direction": "out", "id":  "outcome.livingExpenses.utilities.gas"},
+  {"direction": "out", "id":  "outcome.livingExpenses.utilities.internet", "pattern": "COMCAST"},
+  {"direction": "out", "id":  "outcome.livingExpenses.food", "pattern": "SOYLENT"},
+  {"direction": "out", "id":  "outcome.livingExpenses.grocery", "pattern": "FRED MEYER"},
+  {"direction": "out", "id":  "outcome.livingExpenses.transportation", "pattern": "LYFT"}
 
 ]

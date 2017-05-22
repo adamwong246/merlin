@@ -2,6 +2,8 @@ import React, {Component, PropTypes} from 'react';
 import {hierarchy, stratify, treemapDice, roundNode} from 'd3-hierarchy';
 import {scaleOrdinal, scaleLinear, schemeCategory20b, schemeCategory20c} from 'd3-scale';
 
+import ModalArea from './ModalArea.js'
+
 import D3Partition from './D3Partition'
 
 // flatten the transactions into the tree proper
@@ -97,31 +99,31 @@ const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, n
   .reduce((memo, e) => memo.concat(e), [])
 }
 
-const recursivelyBuildTaggedTransactions = (root, key) => {
-  if (key){
-    var pointer = root;
-
-    key.split('.').forEach( (k, kndx) => {
-      if (kndx != 0){
-        pointer = pointer.children.filter((pc) => {
-          return pc.id.split('.')[kndx] == k
-        })[0]
-
-      } else {
-        console.log("skip first index!")
-      }
-    })
-
-    return recursivelyBuildTaggedTransactions(pointer)
-
-  } else {
-    return (root.children || []).map((child) => recursivelyBuildTaggedTransactions(child))
-    .concat((root.data || false).transactions || [])
-    .reduce(function(a, b) {
-      return a.concat(b);
-    }, [])
-  }
-}
+// const recursivelyBuildTaggedTransactions = (root, key) => {
+//   if (key){
+//     var pointer = root;
+//
+//     key.split('.').forEach( (k, kndx) => {
+//       if (kndx != 0){
+//         pointer = pointer.children.filter((pc) => {
+//           return pc.id.split('.')[kndx] == k
+//         })[0]
+//
+//       } else {
+//         console.log("skip first index!")
+//       }
+//     })
+//
+//     return recursivelyBuildTaggedTransactions(pointer)
+//
+//   } else {
+//     return (root.children || []).map((child) => recursivelyBuildTaggedTransactions(child))
+//     .concat((root.data || false).transactions || [])
+//     .reduce(function(a, b) {
+//       return a.concat(b);
+//     }, [])
+//   }
+// }
 
 var TableAndTree = React.createClass({
   getInitialState() {
@@ -184,20 +186,20 @@ var TableAndTree = React.createClass({
     const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags, focused == null)
     const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
 
-    var taggedTransactions;
-
-    if (focused == null){
-      taggedTransactions = recursivelyBuildTaggedTransactions(posRoot)
-      .concat(recursivelyBuildTaggedTransactions(negRoot));
-    } else {
-      if (focused.split('.')[0] == "outcome"){
-        taggedTransactions = recursivelyBuildTaggedTransactions(negRoot, focused);
-      } else if (focused.split('.')[0] == "income"){
-        taggedTransactions = recursivelyBuildTaggedTransactions(posRoot, focused);
-      }else {
-        debugger
-      }
-    }
+    // var taggedTransactions;
+    //
+    // if (focused == null){
+    //   taggedTransactions = recursivelyBuildTaggedTransactions(posRoot)
+    //   .concat(recursivelyBuildTaggedTransactions(negRoot));
+    // } else {
+    //   if (focused.split('.')[0] == "outcome"){
+    //     taggedTransactions = recursivelyBuildTaggedTransactions(negRoot, focused);
+    //   } else if (focused.split('.')[0] == "income"){
+    //     taggedTransactions = recursivelyBuildTaggedTransactions(posRoot, focused);
+    //   }else {
+    //     debugger
+    //   }
+    // }
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
@@ -249,24 +251,12 @@ var TableAndTree = React.createClass({
     return (
       <div>
         <div className="left" >
-         <button onClick={this.goBack} > clear state </button>
-         <p>{JSON.stringify(this.state, null, 2)}</p>
-          <table >
-            <tbody>
-              {taggedTransactions.map((t, ndx) => {
-                return (
-                  <tr key={`tgdtrnsctn-${ndx}`}>
-                    <td>{t.FITID}</td>
-                    <td>{t.TRNAMT}</td>
-                    <td>{t.NAME}</td>
-                    <td>{JSON.stringify(t, null, 2)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+
+         <ModalArea noun="tran" flatOrFold="fold" splitOrUnified="split" tags={tags} transactions={transactions}/>
         </div>
         <div className="right" >
+          <button onClick={this.goBack} > clear state </button>
+          <p>{JSON.stringify(this.state, null, 2)}</p>
           <svg width={`${viewWidth}px`} height={`${viewHeight}px`}>
 
             <D3Partition

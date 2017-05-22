@@ -18,21 +18,19 @@ import './styles.css'
 
 const transactions = require('./transactions.json').BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
 const tags = require('./tags.json');
-const tags2 = require('./tags2.json');
 
 storiesOf('Merlin', module)
-  .add('modal switcher', () => {
-   return (<ModalSwitcher noun="tag" flatOrFold="flat" splitOrUnified="unified"/>)}).add('modal area', () => {
-     return (<ModalArea noun="tran" flatOrFold="fold" splitOrUnified="split" tags={tags} transactions={transactions}/> )
-   })
-  .add('FlatUnifiedTags', () => (<FlatUnifiedTags transactions={transactions} tags={tags} /> ))
-  .add('FlatUnifiedTrans', () => (<FlatUnifiedTrans transactions={transactions} tags={tags}/>))
-  .add('FoldUnifiedTags', () => (<FoldUnifiedTags transactions={transactions} tags={tags} /> ))
-  .add('FoldUnifiedTrans', () => (<FoldUnifiedTrans transactions={transactions} tags={tags} /> ))
-  .add('FlatSplitTrans', () => (<FlatSplitTrans transactions={transactions} tags={tags} /> ))
-  .add('FlatSplitTags', () => (<FlatSplitTags transactions={transactions} tags={tags} /> ))
-  .add('FoldSplitTags', () => (<FoldSplitTags transactions={transactions} tags={tags} /> ))
-  .add('FoldSplitTrans', () => (<FoldSplitTrans transactions={transactions} tags={tags} /> ))
-  .add('TableAndTree', () => (<TableAndTree transactions={transactions} tags={tags2} /> ));
-
-;
+  .add('TableAndTree', () => (<TableAndTree transactions={transactions} tags={tags} /> ));
+  // .add('modal switcher', () => {
+  //  return (<ModalSwitcher noun="tag" flatOrFold="flat" splitOrUnified="unified"/>)})
+  // .add('modal area', () => {
+  //    return (<ModalArea noun="tran" flatOrFold="fold" splitOrUnified="split" tags={tags} transactions={transactions}/> )
+  //  })
+  // .add('FlatUnifiedTags', () => (<FlatUnifiedTags transactions={transactions} tags={tags} /> ))
+  // .add('FlatUnifiedTrans', () => (<FlatUnifiedTrans transactions={transactions} tags={tags}/>))
+  // .add('FoldUnifiedTags', () => (<FoldUnifiedTags transactions={transactions} tags={tags} /> ))
+  // .add('FoldUnifiedTrans', () => (<FoldUnifiedTrans transactions={transactions} tags={tags} /> ))
+  // .add('FlatSplitTrans', () => (<FlatSplitTrans transactions={transactions} tags={tags} /> ))
+  // .add('FlatSplitTags', () => (<FlatSplitTags transactions={transactions} tags={tags} /> ))
+  // .add('FoldSplitTags', () => (<FoldSplitTags transactions={transactions} tags={tags} /> ))
+  // .add('FoldSplitTrans', () => (<FoldSplitTrans transactions={transactions} tags={tags} /> ))
