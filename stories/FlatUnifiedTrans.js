@@ -8,12 +8,8 @@ const FlatUnifiedTrans = ({ tags, transactions }) => {
      {transactions.map((transaction) => {
        return (
         <tr>
-         <td>
-          <td>{transaction.NAME}</td>
-         </td>
-         <td>
-          <FlatUnifiedTags tags={tags.filter((t) => new RegExp(t.pattern).test(transaction.NAME)) } />
-         </td>
+         <td>{transaction.NAME}</td>
+         <td>{transaction.TRNAMT}</td>
         </tr>
        )
      })}

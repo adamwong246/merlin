@@ -25,6 +25,6 @@ svg * {
  vector-effect: non-scaling-stroke;
 }
 
-.right svg {
+.right {
  position: fixed;
 }

@@ -1,9 +1,9 @@
 import React from 'react';
 
 const FlatUnifiedTags = ({ tags }) => {
- const tagComps = tags.map((tag) => {
+ const tagComps = tags.filter((t)=>t.pattern).map((tag) => {
    return (
-    <li>{`${tag.direction}, ${tag.pattern} -> ${tag.path}`}</li>
+    <li>{`${tag.direction}, ${tag.pattern} -> ${tag.id}`}</li>
    )
  })
 

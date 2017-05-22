@@ -99,31 +99,31 @@ const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, n
   .reduce((memo, e) => memo.concat(e), [])
 }
 
-// const recursivelyBuildTaggedTransactions = (root, key) => {
-//   if (key){
-//     var pointer = root;
-//
-//     key.split('.').forEach( (k, kndx) => {
-//       if (kndx != 0){
-//         pointer = pointer.children.filter((pc) => {
-//           return pc.id.split('.')[kndx] == k
-//         })[0]
-//
-//       } else {
-//         console.log("skip first index!")
-//       }
-//     })
-//
-//     return recursivelyBuildTaggedTransactions(pointer)
-//
-//   } else {
-//     return (root.children || []).map((child) => recursivelyBuildTaggedTransactions(child))
-//     .concat((root.data || false).transactions || [])
-//     .reduce(function(a, b) {
-//       return a.concat(b);
-//     }, [])
-//   }
-// }
+const recursivelyBuildTaggedTransactions = (root, key) => {
+  if (key){
+    var pointer = root;
+
+    key.split('.').forEach( (k, kndx) => {
+      if (kndx != 0){
+        pointer = pointer.children.filter((pc) => {
+          return pc.id.split('.')[kndx] == k
+        })[0]
+
+      } else {
+        console.log("skip first index!")
+      }
+    })
+
+    return recursivelyBuildTaggedTransactions(pointer)
+
+  } else {
+    return (root.children || []).map((child) => recursivelyBuildTaggedTransactions(child))
+    .concat((root.data || false).transactions || [])
+    .reduce(function(a, b) {
+      return a.concat(b);
+    }, [])
+  }
+}
 
 var TableAndTree = React.createClass({
   getInitialState() {
@@ -180,26 +180,35 @@ var TableAndTree = React.createClass({
     const transactions = this.props.transactions;
     const focused = this.state.focused;
 
+    const transactedTags = makeTransactedTags(transactions, tags)
+    .filter((t)=> {
+      if (focused == null){
+        return true
+      } else {
+        return t.id.includes(focused)
+      }
+    })
+
     const positiveTransactedTags = makePositiveTransactedTags(transactions, tags, focused == null);
     const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
 
     const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags, focused == null)
     const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
 
-    // var taggedTransactions;
-    //
-    // if (focused == null){
-    //   taggedTransactions = recursivelyBuildTaggedTransactions(posRoot)
-    //   .concat(recursivelyBuildTaggedTransactions(negRoot));
-    // } else {
-    //   if (focused.split('.')[0] == "outcome"){
-    //     taggedTransactions = recursivelyBuildTaggedTransactions(negRoot, focused);
-    //   } else if (focused.split('.')[0] == "income"){
-    //     taggedTransactions = recursivelyBuildTaggedTransactions(posRoot, focused);
-    //   }else {
-    //     debugger
-    //   }
-    // }
+    var taggedTransactions;
+
+    if (focused == null){
+      taggedTransactions = recursivelyBuildTaggedTransactions(posRoot)
+      .concat(recursivelyBuildTaggedTransactions(negRoot));
+    } else {
+      if (focused.split('.')[0] == "outcome"){
+        taggedTransactions = recursivelyBuildTaggedTransactions(negRoot, focused);
+      } else if (focused.split('.')[0] == "income"){
+        taggedTransactions = recursivelyBuildTaggedTransactions(posRoot, focused);
+      }else {
+        debugger
+      }
+    }
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
@@ -248,15 +257,70 @@ var TableAndTree = React.createClass({
       }
     }
 
+
     return (
       <div>
         <div className="left" >
-
-         <ModalArea noun="tran" flatOrFold="fold" splitOrUnified="split" tags={tags} transactions={transactions}/>
-        </div>
-        <div className="right" >
           <button onClick={this.goBack} > clear state </button>
           <p>{JSON.stringify(this.state, null, 2)}</p>
+
+          <table>
+            <tr>
+              <td>
+                <table >
+                  <caption>tags</caption>
+                  <thead>
+                    <tr>
+                      <th>id</th>
+                      <th>pattern</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(transactedTags).map((t, ndx) => {
+                      const focuser = () => {
+                        this.setFocus({id: t.id})
+                      }
+                      return (
+                        <tr key={`trnscttags-${ndx}`}>
+                          <td><a href='#' onClick={focuser}>{t.id}</a></td>
+                          <td><code>/{t.pattern}/</code></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </td>
+              <td>
+                <table >
+                  <caption>transactions</caption>
+                  <thead>
+                    <tr>
+                      <th>name</th>
+                      <th>date</th>
+                      <th>$</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {taggedTransactions.map((t, ndx) => {
+                      return (
+                        <tr key={`tgdtrnsctn-${ndx}`}>
+                          <td>{t.NAME}</td>
+                          <td>{t.FITID}</td>
+                          <td>{t.TRNAMT}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </table>
+
+
+
+        </div>
+
+        <div className="right" >
           <svg width={`${viewWidth}px`} height={`${viewHeight}px`}>
 
             <D3Partition

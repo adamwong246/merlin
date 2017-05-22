@@ -11,7 +11,7 @@ import FoldSplitTags from './FoldSplitTags.js'
 
 var ModalArea = React.createClass({
  getInitialState() {
-   return { };
+   return { splitOrUnified: 'unified', flatOrFold: 'flat' };
   },
   switchToTran(e) {
    this.setState({ noun: 'tran'});
@@ -30,6 +30,24 @@ var ModalArea = React.createClass({
   },
   switchToUnified(e) {
    this.setState({ splitOrUnified: 'unified'});
+  },
+
+  switchToTags(e){
+    this.setState({ flatOrFold: 'fold'});
+    this.setState({ splitOrUnified: 'unified'});
+    this.setState({ noun: 'tag'});
+  },
+
+  switchToTransactions(e){
+    this.setState({ flatOrFold: 'flat'});
+    this.setState({ splitOrUnified: 'unified'});
+    this.setState({ noun: 'tran'});
+  },
+
+  switchToJoined(e){
+    this.setState({ flatOrFold: 'fold'});
+    this.setState({ splitOrUnified: 'unified'});
+    this.setState({ noun: 'tran'});
   },
 
   render() {
@@ -59,6 +77,7 @@ var ModalArea = React.createClass({
 
     return (
       <div>
+       <span>{JSON.stringify(this.state, null, 2)}</span>
        <ModalSwitcher noun={nounMode}
                       switchToTran={this.switchToTran}
                       switchToTag={this.switchToTag}
@@ -69,7 +88,13 @@ var ModalArea = React.createClass({
 
                       splitOrUnified={splitOrUnifiedMode}
                       switchToSplit={this.switchToSplit}
-                      switchToUnified={this.switchToUnified}/>
+                      switchToUnified={this.switchToUnified}
+
+                      switchToTransactions={this.switchToTransactions}
+                      switchToTags={this.switchToTags}
+                      switchToJoined={this.switchToJoined}
+
+                      />
        <hr/>
        {compon}
       </div>

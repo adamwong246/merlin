@@ -11,7 +11,9 @@ var FoldUnifiedTag = React.createClass({
     <ul className="tags">
       {tags.map(t =>
         <li key={t.id} className="tag">
-          <span>{t.name}</span>
+          <span>
+           {t.name} <code>{t.patterns}</code>
+          </span>
           {t.children && <FoldUnifiedTag tags={t.children}/>}
         </li>
       )}

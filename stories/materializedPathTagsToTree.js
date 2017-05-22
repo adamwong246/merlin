@@ -23,7 +23,8 @@ export default function materializedPathTagsToTree (tags) {
              var newNode = currentNode[k] = {
               name: wantedNode,
               children: [],
-              patterns: [tags[i].pattern]
+              patterns: [tags[i].pattern],
+              direction: tags[i].direction
              };
              currentNode = newNode.children;
          }
