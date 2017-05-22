@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import {hierarchy, stratify, treemapDice, roundNode} from 'd3-hierarchy';
 import {scaleOrdinal, scaleLinear, schemeCategory20b, schemeCategory20c} from 'd3-scale';
 
-import ModalArea from './ModalArea.js'
+// import ModalArea from './ModalArea.js'
 
 import D3Partition from './D3Partition'
 
