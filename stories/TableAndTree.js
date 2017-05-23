@@ -212,7 +212,7 @@ var TableAndTree = React.createClass({
 
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
-    const base = 500;
+    const base = 400;
     const viewWidth = base;
     const viewHeight = base;
     const halfViewHeight = viewHeight / 2;
@@ -257,7 +257,6 @@ var TableAndTree = React.createClass({
       }
     }
 
-
     return (
       <div>
         <div className="left" >
@@ -273,6 +272,7 @@ var TableAndTree = React.createClass({
                     <tr>
                       <th>id</th>
                       <th>pattern</th>
+                      <th>transactions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -284,6 +284,15 @@ var TableAndTree = React.createClass({
                         <tr key={`trnscttags-${ndx}`}>
                           <td><a href='#' onClick={focuser}>{t.id}</a></td>
                           <td><code>/{t.pattern}/</code></td>
+                          <td>
+                            <ul>
+                              {
+                                t.transactions.map((transaction) => {
+                                  <li>{JSON.stringify(transaction)}</li>
+                                })
+                              }
+                            </ul>
+                          </td>
                         </tr>
                       );
                     })}
@@ -307,6 +316,7 @@ var TableAndTree = React.createClass({
                           <td>{t.NAME}</td>
                           <td>{t.FITID}</td>
                           <td>{t.TRNAMT}</td>
+                          <td>{JSON.stringify(t.tags)}</td>
                         </tr>
                       );
                     })}

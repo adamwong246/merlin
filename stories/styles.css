@@ -1,5 +1,5 @@
-.left{ float: left; width: 50%; }
-.right{ display: inline-block; width: 50%; }
+.left{ float: left; width: 66%; }
+.right{ display: inline-block; width: 33%; }
 
 table, tr, td {
    border: 1px solid black;
