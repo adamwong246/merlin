@@ -1,131 +1,10 @@
 import React, {Component, PropTypes} from 'react';
-import {hierarchy, stratify, treemapDice, roundNode} from 'd3-hierarchy';
-import {scaleOrdinal, scaleLinear, schemeCategory20b, schemeCategory20c} from 'd3-scale';
-
-// import ModalArea from './ModalArea.js'
+import {stratify} from 'd3-hierarchy';
+import {scaleLinear, schemeCategory20b, schemeCategory20c} from 'd3-scale';
 
 import D3Partition from './D3Partition'
 
-// flatten the transactions into the tree proper
-const makeFlattenedSelectionOfTransactedTags = (tags) => {
-
-  var toReturn = [];
-  toReturn = tags.map((t) => {
-    const tid = t.id;
-    if (t.transactions.length) {
-      return t.transactions.map((tt) => {
-        return {
-          ...tt,
-          id: `${tid}.${tt.FITID}`,
-          value: Math.abs(Number(tt.TRNAMT))
-        }
-      });
-    }
-    return false
-  }).filter(Boolean)
-  .reduce((memo, e) => memo.concat(e), [])
-  .concat(tags);
-
-  return toReturn;
-};
-
-// makes a tree suitable for d3-hierarchy
-const makeTreeOfTransactedTags = (tags, direction) => {
-
-  const flattenedSelectionOfTransactedTags = makeFlattenedSelectionOfTransactedTags(tags);
-
-  return stratify()
-  .parentId((d) => d.id.substring(0, d.id.lastIndexOf(".")) )
-
-  // pass the stratify function the selected tags
-  (flattenedSelectionOfTransactedTags)
-
-  // D3 needs you to call sum and sort before layout rendering
-  .sum((d) => d.value).sort((a, b) => b.height - a.height || b.value - a.value);
-}
-
-// returns a list of tags with the matching transactions as members
-const makeTransactedTags = (transactions, tags) => {
-  return tags.map((tag) => {
-    return {
-      ...tag,
-      transactions: transactions.filter((transaction) => {
-        if (tag.pattern) {
-          return RegExp(tag.pattern).test(transaction.NAME);
-        }
-        return false
-      })
-    };
-  });
-}
-
-const makePositiveOrNegativeTransactedTags = (transactions, tags, inOrOut, appendUncategorized) => {
-  const filteredTransactions = transactions.filter((transaction) => {
-    return (Number(transaction.TRNAMT) > 0 && inOrOut == "in") || (Number(transaction.TRNAMT) < 0 && inOrOut == "out")
-  });
-  const filteredTags = tags.filter((tag) => tag.direction == inOrOut);
-  var transactedTags = makeTransactedTags(filteredTransactions, filteredTags);
-
-  if (true){
-    transactedTags.push({
-      "direction": inOrOut,
-      "id": `${inOrOut}come.uncategorized`,
-      "transactions": filteredTransactions.filter((transaction) => {
-        return tags.filter((tag) => {
-          if (tag.pattern && tag.direction == inOrOut) {
-            return RegExp(tag.pattern).test(transaction.NAME);
-          }
-          return false
-        }).length == 0
-      })
-    });
-  }
-
-  return transactedTags;
-};
-
-const makePositiveTransactedTags = (transactions, tags, appendUncategorized) => makePositiveOrNegativeTransactedTags(transactions, tags, "in", appendUncategorized)
-
-const makeNegativeTransactedTags = (transactions, tags, appendUncategorized) => makePositiveOrNegativeTransactedTags(transactions, tags, "out", appendUncategorized)
-
-const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, negativeTT) => {
-  return positiveTT.concat(negativeTT)
-  .map( (tag) => {
-    return tag.transactions.map((transaction) => {
-      return {...transaction, tags: [tag]}
-    })
-  })
-  .filter(Boolean)
-  .reduce((memo, e) => memo.concat(e), [])
-}
-
-const recursivelyBuildTaggedTransactions = (root, key) => {
-  if (key){
-    var pointer = root;
-
-    key.split('.').forEach( (k, kndx) => {
-      if (kndx != 0){
-        pointer = pointer.children.filter((pc) => {
-          return pc.id.split('.')[kndx] == k
-        })[0]
-
-      } else {
-        console.log("skip first index!")
-      }
-    })
-
-    return recursivelyBuildTaggedTransactions(pointer)
-
-  } else {
-    return (root.children || []).map((child) => recursivelyBuildTaggedTransactions(child))
-    .concat((root.data || false).transactions || [])
-    .reduce(function(a, b) {
-      return a.concat(b);
-    }, [])
-  }
-}
-
-var TableAndTree = React.createClass({
+const TableAndTree = React.createClass({
   getInitialState() {
     return {
       focused: null,
@@ -180,6 +59,8 @@ var TableAndTree = React.createClass({
     const transactions = this.props.transactions;
     const focused = this.state.focused;
 
+    // transacted tags - tags joined with transactions
+    ////////////////////////////////////////////////////////
     const transactedTags = makeTransactedTags(transactions, tags)
     .filter((t)=> {
       if (focused == null){
@@ -189,12 +70,15 @@ var TableAndTree = React.createClass({
       }
     })
 
+    // split transacted tags into income and outcome, then make tree of each
     const positiveTransactedTags = makePositiveTransactedTags(transactions, tags, focused == null);
     const posRoot = makeTreeOfTransactedTags(positiveTransactedTags);
 
     const negativeTransactedTags = makeNegativeTransactedTags(transactions, tags, focused == null)
     const negRoot = makeTreeOfTransactedTags(negativeTransactedTags);
 
+    // tagged transactions - transactions joined with tags
+    ////////////////////////////////////////////////////////
     var taggedTransactions;
 
     if (focused == null){
@@ -210,6 +94,7 @@ var TableAndTree = React.createClass({
       }
     }
 
+    // total throughput
     const ttlthrpt = Math.max(posRoot.value, negRoot.value);
 
     const base = 400;
@@ -362,5 +247,124 @@ var TableAndTree = React.createClass({
       </div>);
     }
   });
+
+// flatten the transactions into the tree proper
+const makeFlattenedSelectionOfTransactedTags = (tags) => {
+
+  var toReturn = [];
+  toReturn = tags.map((t) => {
+    const tid = t.id;
+    if (t.transactions.length) {
+      return t.transactions.map((tt) => {
+        return {
+          ...tt,
+          id: `${tid}.${tt.FITID}`,
+          value: Math.abs(Number(tt.TRNAMT))
+        }
+      });
+    }
+    return false
+  }).filter(Boolean)
+  .reduce((memo, e) => memo.concat(e), [])
+  .concat(tags);
+
+  return toReturn;
+};
+
+// makes a tree suitable for d3-hierarchy
+const makeTreeOfTransactedTags = (tags, direction) => {
+
+  const flattenedSelectionOfTransactedTags = makeFlattenedSelectionOfTransactedTags(tags);
+
+  return stratify()
+  .parentId((d) => d.id.substring(0, d.id.lastIndexOf(".")) )
+
+  // pass the stratify function the selected tags
+  (flattenedSelectionOfTransactedTags)
+
+  // D3 needs you to call sum and sort before layout rendering
+  .sum((d) => d.value).sort((a, b) => b.height - a.height || b.value - a.value);
+}
+
+// returns a list of tags with the matching transactions as members
+const makeTransactedTags = (transactions, tags) => {
+  return tags.map((tag) => {
+    return {
+      ...tag,
+      transactions: transactions.filter((transaction) => {
+        if (tag.pattern) {
+          return RegExp(tag.pattern).test(transaction.NAME);
+        }
+        return false
+      })
+    };
+  });
+}
+
+const makePositiveOrNegativeTransactedTags = (transactions, tags, inOrOut, appendUncategorized) => {
+  const filteredTransactions = transactions.filter((transaction) => {
+    return (Number(transaction.TRNAMT) > 0 && inOrOut == "in") || (Number(transaction.TRNAMT) < 0 && inOrOut == "out")
+  });
+  const filteredTags = tags.filter((tag) => tag.direction == inOrOut);
+  var transactedTags = makeTransactedTags(filteredTransactions, filteredTags);
+
+  if (true){
+    transactedTags.push({
+      "direction": inOrOut,
+      "id": `${inOrOut}come.uncategorized`,
+      "transactions": filteredTransactions.filter((transaction) => {
+        return tags.filter((tag) => {
+          if (tag.pattern && tag.direction == inOrOut) {
+            return RegExp(tag.pattern).test(transaction.NAME);
+          }
+          return false
+        }).length == 0
+      })
+    });
+  }
+
+  return transactedTags;
+};
+
+const makePositiveTransactedTags = (transactions, tags, appendUncategorized) => makePositiveOrNegativeTransactedTags(transactions, tags, "in", appendUncategorized)
+
+const makeNegativeTransactedTags = (transactions, tags, appendUncategorized) => makePositiveOrNegativeTransactedTags(transactions, tags, "out", appendUncategorized)
+
+const makeTaggedTransactionsOfPositiveAndNegativeTransactedTags = (positiveTT, negativeTT) => {
+  return positiveTT.concat(negativeTT)
+  .map( (tag) => {
+    return tag.transactions.map((transaction) => {
+      return {...transaction, tags: [tag]}
+    })
+  })
+  .filter(Boolean)
+  .reduce((memo, e) => memo.concat(e), [])
+}
+
+const recursivelyBuildTaggedTransactions = (root, key) => {
+  if (key){
+    var pointer = root;
+
+    key.split('.').forEach( (k, kndx) => {
+      if (kndx != 0){
+        pointer = pointer.children.filter((pc) => {
+          return pc.id.split('.')[kndx] == k
+        })[0]
+
+      } else {
+        console.log("skip first index!")
+      }
+    })
+
+    return recursivelyBuildTaggedTransactions(pointer)
+
+  } else {
+    return (root.children || []).map((child) => recursivelyBuildTaggedTransactions(child))
+    .concat((root.data || false).transactions || [])
+    .reduce(function(a, b) {
+      return a.concat(b);
+    }, [])
+  }
+}
 
 export default TableAndTree;
